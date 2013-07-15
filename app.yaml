@@ -1,0 +1,27 @@
+application: <your project>
+version: phpmyadmin
+runtime: php
+api_version: 1
+
+
+
+handlers:
+- url: /(.+\.php)
+  script: phpMyAdmin/\1
+  secure: always
+  login: admin
+
+- url: /(.+\.php)\?.+$
+  script: phpMyAdmin/\1
+  secure: always
+  login: admin
+
+- url: /
+  script: phpMyAdmin/index.php
+  secure: always
+  login: admin
+
+- url: /(.*\.(htm$|html$|css$|js$|ico$|jpg$|png$|gif$))
+  static_files: phpMyAdmin/\1
+  upload: phpMyAdmin/(.*\.(htm$|html$|css$|js$|ico$|jpg$|png$|gif$))
+  application_readable: true
