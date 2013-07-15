@@ -5,26 +5,26 @@ api_version: 1
 
 handlers:
 - url: /(.*\.(ico$|jpg$|png$|gif$))
-static_files: phpMyAdmin/\1
-upload: phpMyAdmin/(.*\.(ico$|jpg$|png$|gif$))
-application_readable: true
+  static_files: phpMyAdmin/\1
+  upload: phpMyAdmin/(.*\.(ico$|jpg$|png$|gif$))
+  application_readable: true
 
 - url: /(.*\.(htm$|html$|css$|js$))
-static_files: phpMyAdmin/\1
-upload: phpMyAdmin/(.*\.(htm$|html$|css$|js$))
-application_readable: true
+  static_files: phpMyAdmin/\1
+  upload: phpMyAdmin/(.*\.(htm$|html$|css$|js$))
+  application_readable: true
 
 - url: /(.*\.(php$))
-script: phpMyAdmin/\1
-secure: always
-login: admin
+  script: phpMyAdmin/\1
+  secure: always
+  login: admin
 
 - url: /(.+)
-script: phpMyAdmin/index.php
-secure: always
-login: admin
+  script: phpMyAdmin/index.php
+  secure: always
+  login: admin
 
 - url: /
-script: phpMyAdmin/index.php
-secure: always
-login: admin
+  script: phpMyAdmin/index.php
+  secure: always
+  login: admin
