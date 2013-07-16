@@ -1,9 +1,8 @@
 <?php
-/* vim: set expandtab sw=4 ts=4 sts=4: */
 /**
  * Server create and edit view
  *
- * @package PhpMyAdmin-Setup
+ * @package PhpMyAdmin-setup
  */
 
 if (!defined('PHPMYADMIN')) {

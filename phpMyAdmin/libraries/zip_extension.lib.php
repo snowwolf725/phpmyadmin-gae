@@ -1,13 +1,10 @@
 <?php
 /* vim: set expandtab sw=4 ts=4 sts=4: */
+
 /**
  * Interface for the zip extension
- *
- * @package PhpMyAdmin
+ * @package    phpMyAdmin
  */
-if (! defined('PHPMYADMIN')) {
-    exit;
-}
 
 /**
  * Gets zip file contents
@@ -42,10 +39,7 @@ function PMA_getZipContents($file, $specific_entry = null)
                     if (is_resource($entry)) {
                         if (preg_match($specific_entry, zip_entry_name($entry))) {
                             zip_entry_open($zip_handle, $entry, 'r');
-                            $file_data = zip_entry_read(
-                                $entry,
-                                zip_entry_filesize($entry)
-                            );
+                            $file_data = zip_entry_read($entry, zip_entry_filesize($entry));
                             zip_entry_close($entry);
                             break;
                         }
@@ -56,11 +50,9 @@ function PMA_getZipContents($file, $specific_entry = null)
                          * error that we must display
                          */
                         if ($entry === false) {
-                            $error_message = __('Error in ZIP archive:')
-                                . ' Could not find "' . $specific_entry . '"';
+                            $error_message = __('Error in ZIP archive:') . ' Could not find "' . $specific_entry . '"';
                         } else {
-                            $error_message = __('Error in ZIP archive:')
-                                . ' ' . PMA_getZipError($zip_handle);
+                            $error_message = __('Error in ZIP archive:') . ' ' . PMA_getZipError($zip_handle);
                         }
 
                         break;
@@ -68,19 +60,14 @@ function PMA_getZipContents($file, $specific_entry = null)
                 }
             } else {
                 zip_entry_open($zip_handle, $first_zip_entry, 'r');
-                /* File pointer has already been moved,
-                 * so include what was read above */
+                /* File pointer has already been moved, so include what was read above */
                 $file_data = $read;
-                $file_data .= zip_entry_read(
-                    $first_zip_entry,
-                    zip_entry_filesize($first_zip_entry)
-                );
+                $file_data .= zip_entry_read($first_zip_entry, zip_entry_filesize($first_zip_entry));
                 zip_entry_close($first_zip_entry);
             }
         }
     } else {
-        $error_message = __('Error in ZIP archive:')
-            . ' ' . PMA_getZipError($zip_handle);
+        $error_message = __('Error in ZIP archive:') . ' ' . PMA_getZipError($zip_handle);
     }
     zip_close($zip_handle);
     return (array('error' => $error_message, 'data' => $file_data));
@@ -97,6 +84,7 @@ function PMA_getZipContents($file, $specific_entry = null)
 function PMA_findFileFromZipArchive ($file_regexp, $file)
 {
     $zip_handle = zip_open($file);
+    $found = false;
     if (is_resource($zip_handle)) {
         $entry = zip_read($zip_handle);
         while (is_resource($entry)) {
@@ -123,6 +111,7 @@ function PMA_getNoOfFilesInZip($file)
 {
     $count = 0;
     $zip_handle = zip_open($file);
+    $found = false;
     if (is_resource($zip_handle)) {
         $entry = zip_read($zip_handle);
         while (is_resource($entry)) {

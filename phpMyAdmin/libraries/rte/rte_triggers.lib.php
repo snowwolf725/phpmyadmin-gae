@@ -11,8 +11,6 @@ if (! defined('PHPMYADMIN')) {
 
 /**
  * Sets required globals
- *
- * @return void
  */
 function PMA_TRI_setGlobals()
 {
@@ -28,8 +26,6 @@ function PMA_TRI_setGlobals()
 
 /**
  * Main function for the triggers functionality
- *
- * @return void
  */
 function PMA_TRI_main()
 {
@@ -55,8 +51,6 @@ function PMA_TRI_main()
 
 /**
  * Handles editor requests for adding or editing an item
- *
- * @return void
  */
 function PMA_TRI_handleEditor()
 {
@@ -97,11 +91,9 @@ function PMA_TRI_handleEditor()
                         // Try to restore the backup query
                         $result = PMA_DBI_try_query($create_item);
                         if (! $result) {
-                            // OMG, this is really bad! We dropped the query,
-                            // failed to create a new one
+                            // OMG, this is really bad! We dropped the query, failed to create a new one
                             // and now even the backup query does not execute!
-                            // This should not happen, but we better handle
-                            // this just in case.
+                            // This should not happen, but we better handle this just in case.
                             $errors[] = __(
                                 'Sorry, we failed to restore the dropped trigger.'
                             )
@@ -112,12 +104,8 @@ function PMA_TRI_handleEditor()
                             . __('MySQL said: ') . PMA_DBI_getError(null);
                         }
                     } else {
-                        $message = PMA_Message::success(
-                            __('Trigger %1$s has been modified.')
-                        );
-                        $message->addParam(
-                            PMA_Util::backquote($_REQUEST['item_name'])
-                        );
+                        $message = PMA_Message::success(__('Trigger %1$s has been modified.'));
+                        $message->addParam(PMA_backquote($_REQUEST['item_name']));
                         $sql_query = $drop_item . $item_query;
                     }
                 }
@@ -132,12 +120,8 @@ function PMA_TRI_handleEditor()
                     . '<br /><br />'
                     . __('MySQL said: ') . PMA_DBI_getError(null);
                 } else {
-                    $message = PMA_Message::success(
-                        __('Trigger %1$s has been created.')
-                    );
-                    $message->addParam(
-                        PMA_Util::backquote($_REQUEST['item_name'])
-                    );
+                    $message = PMA_Message::success(__('Trigger %1$s has been created.'));
+                    $message->addParam(PMA_backquote($_REQUEST['item_name']));
                     $sql_query = $item_query;
                 }
             }
@@ -152,9 +136,9 @@ function PMA_TRI_handleEditor()
             $message->addString('</ul>');
         }
 
-        $output = PMA_Util::getMessage($message, $sql_query);
+        $output = PMA_showMessage($message, $sql_query);
         if ($GLOBALS['is_ajax_request']) {
-            $response = PMA_Response::getInstance();
+            $extra_data = array();
             if ($message->isSuccess()) {
                 $items = PMA_DBI_get_triggers($db, $table, '');
                 $trigger = false;
@@ -163,37 +147,27 @@ function PMA_TRI_handleEditor()
                         $trigger = $value;
                     }
                 }
-                $insert = false;
-                if (empty($table)
-                    || ($trigger !== false && $table == $trigger['table'])
-                ) {
-                    $insert = true;
-                    $response->addJSON('new_row', PMA_TRI_getRowForList($trigger));
-                    $response->addJSON(
-                        'name',
-                        htmlspecialchars(
-                            strtoupper($_REQUEST['item_name'])
-                        )
+                $extra_data['insert'] = false;
+                if (empty($table) || ($trigger !== false && $table == $trigger['table'])) {
+                    $extra_data['insert'] = true;
+                    $extra_data['new_row'] = PMA_TRI_getRowForList($trigger);
+                    $extra_data['name'] = htmlspecialchars(
+                        strtoupper($_REQUEST['item_name'])
                     );
                 }
-                $response->addJSON('insert', $insert);
-                $response->addJSON('message', $output);
+                $response = $output;
             } else {
-                $response->addJSON('message', $message);
-                $response->isSuccess(false);
+                $response = $message;
             }
-            exit;
+            PMA_ajaxResponse($response, $message->isSuccess(), $extra_data);
         }
     }
 
     /**
      * Display a form used to add/edit a trigger, if necessary
      */
-    if (count($errors)
-        || (empty($_REQUEST['editor_process_add'])
-        && empty($_REQUEST['editor_process_edit'])
-        && (! empty($_REQUEST['add_item'])
-        || ! empty($_REQUEST['edit_item']))) // FIXME: this must be simpler than that
+    if (count($errors) || ( empty($_REQUEST['editor_process_add']) && empty($_REQUEST['editor_process_edit'])
+        && (! empty($_REQUEST['add_item']) || ! empty($_REQUEST['edit_item']))) // FIXME: this must be simpler than that
     ) {
         // Get the data for the form (if any)
         if (! empty($_REQUEST['add_item'])) {
@@ -218,27 +192,24 @@ function PMA_TRI_handleEditor()
             // Show form
             $editor = PMA_TRI_getEditorForm($mode, $item);
             if ($GLOBALS['is_ajax_request']) {
-                $response = PMA_Response::getInstance();
-                $response->addJSON('message', $editor);
-                $response->addJSON('title', $title);
+                $extra_data = array('title' => $title);
+                PMA_ajaxResponse($editor, true, $extra_data);
             } else {
                 echo "\n\n<h2>$title</h2>\n\n$editor";
                 unset($_POST);
+                include './libraries/footer.inc.php';
             }
-            exit;
+            // exit;
         } else {
             $message  = __('Error in processing request') . ' : ';
             $message .= sprintf(
                 PMA_RTE_getWord('not_found'),
-                htmlspecialchars(PMA_Util::backquote($_REQUEST['item_name'])),
-                htmlspecialchars(PMA_Util::backquote($db))
+                htmlspecialchars(PMA_backquote($_REQUEST['item_name'])),
+                htmlspecialchars(PMA_backquote($db))
             );
             $message = PMA_message::error($message);
             if ($GLOBALS['is_ajax_request']) {
-                $response = PMA_Response::getInstance();
-                $response->isSuccess(false);
-                $response->addJSON('message', $message);
-                exit;
+                PMA_ajaxResponse($message, false);
             } else {
                 $message->display();
             }
@@ -249,7 +220,7 @@ function PMA_TRI_handleEditor()
 /**
  * This function will generate the values that are required to for the editor
  *
- * @return array    Data necessary to create the editor.
+ * @return  array    Data necessary to create the editor.
  */
 function PMA_TRI_getDataFromRequest()
 {
@@ -271,9 +242,9 @@ function PMA_TRI_getDataFromRequest()
  * This function will generate the values that are required to complete
  * the "Edit trigger" form given the name of a trigger.
  *
- * @param string $name The name of the trigger.
+ * @param   string   $name   The name of the trigger.
  *
- * @return array Data necessary to create the editor.
+ * @return  array    Data necessary to create the editor.
  */
 function PMA_TRI_getDataFromName($name)
 {
@@ -305,12 +276,13 @@ function PMA_TRI_getDataFromName($name)
 /**
  * Displays a form used to add/edit a trigger
  *
- * @param string $mode If the editor will be used edit a trigger
- *                     or add a new one: 'edit' or 'add'.
- * @param array  $item Data for the trigger returned by PMA_TRI_getDataFromRequest()
- *                     or PMA_TRI_getDataFromName()
+ * @param   string   $mode         If the editor will be used edit a trigger
+ *                                 or add a new one: 'edit' or 'add'.
+ * @param   array    $item         Data for the trigger returned by
+ *                                 PMA_TRI_getDataFromRequest() or
+ *                                 PMA_TRI_getDataFromName()
  *
- * @return string HTML code for the editor.
+ * @return  string   HTML code for the editor.
  */
 function PMA_TRI_getEditorForm($mode, $item)
 {
@@ -332,7 +304,7 @@ function PMA_TRI_getEditorForm($mode, $item)
                        . "type='hidden' value='{$item['item_original_name']}'/>\n";
     }
     $query  = "SELECT `TABLE_NAME` FROM `INFORMATION_SCHEMA`.`TABLES` ";
-    $query .= "WHERE `TABLE_SCHEMA`='" . PMA_Util::sqlAddSlashes($db) . "' ";
+    $query .= "WHERE `TABLE_SCHEMA`='" . PMA_sqlAddSlashes($db) . "' ";
     $query .= "AND `TABLE_TYPE`='BASE TABLE'";
     $tables = PMA_DBI_fetch_result($query);
 
@@ -429,7 +401,7 @@ function PMA_TRI_getEditorForm($mode, $item)
 /**
  * Composes the query necessary to create a trigger from an HTTP request.
  *
- * @return string  The CREATE TRIGGER query.
+ * @return  string  The CREATE TRIGGER query.
  */
 function PMA_TRI_getQueryFromRequest()
 {
@@ -439,37 +411,31 @@ function PMA_TRI_getQueryFromRequest()
     if (! empty($_REQUEST['item_definer'])) {
         if (strpos($_REQUEST['item_definer'], '@') !== false) {
             $arr = explode('@', $_REQUEST['item_definer']);
-            $query .= 'DEFINER=' . PMA_Util::backquote($arr[0]);
-            $query .= '@' . PMA_Util::backquote($arr[1]) . ' ';
+            $query .= 'DEFINER=' . PMA_backquote($arr[0]);
+            $query .= '@' . PMA_backquote($arr[1]) . ' ';
         } else {
             $errors[] = __('The definer must be in the "username@hostname" format');
         }
     }
     $query .= 'TRIGGER ';
     if (! empty($_REQUEST['item_name'])) {
-        $query .= PMA_Util::backquote($_REQUEST['item_name']) . ' ';
+        $query .= PMA_backquote($_REQUEST['item_name']) . ' ';
     } else {
         $errors[] = __('You must provide a trigger name');
     }
-    if (! empty($_REQUEST['item_timing'])
-        && in_array($_REQUEST['item_timing'], $action_timings)
-    ) {
+    if (! empty($_REQUEST['item_timing']) && in_array($_REQUEST['item_timing'], $action_timings)) {
         $query .= $_REQUEST['item_timing'] . ' ';
     } else {
         $errors[] = __('You must provide a valid timing for the trigger');
     }
-    if (! empty($_REQUEST['item_event'])
-        && in_array($_REQUEST['item_event'], $event_manipulations)
-    ) {
+    if (! empty($_REQUEST['item_event']) && in_array($_REQUEST['item_event'], $event_manipulations)) {
         $query .= $_REQUEST['item_event'] . ' ';
     } else {
         $errors[] = __('You must provide a valid event for the trigger');
     }
     $query .= 'ON ';
-    if (! empty($_REQUEST['item_table'])
-        && in_array($_REQUEST['item_table'], PMA_DBI_get_tables($db))
-    ) {
-        $query .= PMA_Util::backquote($_REQUEST['item_table']);
+    if (! empty($_REQUEST['item_table']) && in_array($_REQUEST['item_table'], PMA_DBI_get_tables($db))) {
+        $query .= PMA_backQuote($_REQUEST['item_table']);
     } else {
         $errors[] = __('You must provide a valid table name');
     }

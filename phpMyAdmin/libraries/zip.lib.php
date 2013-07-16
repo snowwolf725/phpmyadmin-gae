@@ -1,30 +1,27 @@
 <?php
 /* vim: set expandtab sw=4 ts=4 sts=4: */
 /**
- * Zip file creation
  *
  * @package PhpMyAdmin
  */
-if (! defined('PHPMYADMIN')) {
-    exit;
-}
 
 /**
  * Zip file creation class.
  * Makes zip files.
  *
+ * @see Official ZIP file format: http://www.pkware.com/support/zip-app-note
+ *
  * @access  public
  * @package PhpMyAdmin
- * @see     Official ZIP file format: http://www.pkware.com/support/zip-app-note
  */
-class ZipFile
+class zipfile
 {
     /**
      * Whether to echo zip as it's built or return as string from -> file
      *
      * @var  boolean  $doWrite
      */
-    var $doWrite      = false;
+    var $doWrite = false;
 
     /**
      * Array to store compressed data
@@ -66,7 +63,7 @@ class ZipFile
      *
      * @access public
      *
-     * @return void
+     * @return nothing
      */
     function setDoWrite()
     {
@@ -96,12 +93,8 @@ class ZipFile
             $timearray['seconds'] = 0;
         } // end if
 
-        return (($timearray['year'] - 1980) << 25)
-            | ($timearray['mon'] << 21)
-            | ($timearray['mday'] << 16)
-            | ($timearray['hours'] << 11)
-            | ($timearray['minutes'] << 5)
-            | ($timearray['seconds'] >> 1);
+        return (($timearray['year'] - 1980) << 25) | ($timearray['mon'] << 21) | ($timearray['mday'] << 16) |
+                ($timearray['hours'] << 11) | ($timearray['minutes'] << 5) | ($timearray['seconds'] >> 1);
     } // end of the 'unix2DosTime()' method
 
 
@@ -114,7 +107,7 @@ class ZipFile
      *
      * @access public
      *
-     * @return void
+     * @return nothing
      */
     function addFile($data, $name, $time = 0)
     {
@@ -171,8 +164,7 @@ class ZipFile
         $cdrec .= pack('v', 0);             // file comment length
         $cdrec .= pack('v', 0);             // disk number start
         $cdrec .= pack('v', 0);             // internal file attributes
-        $cdrec .= pack('V', 32);            // external file attributes
-                                            // - 'archive' bit set
+        $cdrec .= pack('V', 32);            // external file attributes - 'archive' bit set
 
         $cdrec .= pack('V', $this -> old_offset); // relative offset of local header
         $this -> old_offset += strlen($fr);
@@ -188,7 +180,7 @@ class ZipFile
     /**
      * Echo central dir if ->doWrite==true, else build string to return
      *
-     * @return string  if ->doWrite {empty string} else the ZIP file contents
+     * @return  string  if ->doWrite {empty string} else the ZIP file contents
      *
      * @access public
      */
@@ -197,20 +189,20 @@ class ZipFile
         $ctrldir = implode('', $this -> ctrl_dir);
         $header = $ctrldir .
             $this -> eof_ctrl_dir .
-            pack('v', sizeof($this -> ctrl_dir)) . //total #of entries "on this disk"
-            pack('v', sizeof($this -> ctrl_dir)) . //total #of entries overall
-            pack('V', strlen($ctrldir)) .          //size of central dir
-            pack('V', $this -> old_offset) .       //offset to start of central dir
-            "\x00\x00";                            //.zip file comment length
+            pack('v', sizeof($this -> ctrl_dir)) .  // total # of entries "on this disk"
+            pack('v', sizeof($this -> ctrl_dir)) .  // total # of entries overall
+            pack('V', strlen($ctrldir)) .           // size of central dir
+            pack('V', $this -> old_offset) .        // offset to start of central dir
+            "\x00\x00";                             // .zip file comment length
 
-        if ( $this -> doWrite ) { // Send central directory & end ctrl dir to STDOUT
+        if ( $this -> doWrite ) {       // Send central directory & end ctrl dir to STDOUT
             echo $header;
-            return "";            // Return empty string
-        } else {                  // Return entire ZIP archive as string
+            return "";                                   // Return empty string
+        } else {                        // Return entire ZIP archive as string
             $data = implode('', $this -> datasec);
             return $data . $header;
         }
     } // end of the 'file()' method
 
-} // end of the 'ZipFile' class
+} // end of the 'zipfile' class
 ?>

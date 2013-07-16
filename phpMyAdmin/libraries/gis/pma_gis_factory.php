@@ -1,15 +1,4 @@
 <?php
-/* vim: set expandtab sw=4 ts=4 sts=4: */
-/**
- * Contains the factory class that handles the creation of geometric objects
- *
- * @package PhpMyAdmin-GIS
- */
-
-if (! defined('PHPMYADMIN')) {
-    exit;
-}
-
 /**
  * Factory class that handles the creation of geometric objects.
  *
@@ -22,9 +11,9 @@ class PMA_GIS_Factory
      *
      * @param string $type type of the geometric object
      *
-     * @return object the singleton instance of geometric class of the given type
-     * @access public
-     * @static
+     * @throws Exception
+     *
+     * @return the singleton instance of geometric class of the given type
      */
     public static function factory($type)
     {
@@ -35,7 +24,7 @@ class PMA_GIS_Factory
             return false;
         }
         if (include_once './libraries/gis/pma_gis_' . $type_lower . '.php') {
-            switch(strtoupper($type)) {
+            switch($type) {
             case 'MULTIPOLYGON' :
                 return PMA_GIS_Multipolygon::singleton();
             case 'POLYGON' :

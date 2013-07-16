@@ -1,36 +1,25 @@
 <?php
 /* vim: set expandtab sw=4 ts=4 sts=4: */
 /**
- * Library for extracting information about system memory and cpu.
- * Currently supports all Windows and Linux plattforms
+ * Library for extracting information about system memory and cpu. Currently supports all
+ * Windows and Linux plattforms
  *
- * This code is based on the OS Classes from the phpsysinfo project
- * (http://phpsysinfo.sourceforge.net/)
+ * This code is based on the OS Classes from the phpsysinfo project (http://phpsysinfo.sourceforge.net/)
  *
- * @package PhpMyAdmin-sysinfo
+ * @package PhpMyAdmin
  */
-if (! defined('PHPMYADMIN')) {
-    exit;
-}
-
-define(
-    'MEMORY_REGEXP',
-    '/^(MemTotal|MemFree|Cached|Buffers|SwapCached|SwapTotal|SwapFree):'
-    . '\s+(.*)\s*kB/im'
-);
 
 /**
- * Returns OS type used for sysinfo class
- *
- * @param string $php_os PHP_OS constant
+ * Wrap the PHP_OS constant
  *
  * @return string
  */
-function PMA_getSysInfoOs($php_os = PHP_OS)
+function PMA_getSysInfoOs()
 {
+    $php_os = PHP_OS;
 
     // look for common UNIX-like systems
-    $unix_like = array('FreeBSD', 'DragonFly');
+    $unix_like = array('FreeBSD');
     if (in_array($php_os, $unix_like)) {
         $php_os = 'Linux';
     }
@@ -39,9 +28,7 @@ function PMA_getSysInfoOs($php_os = PHP_OS)
 }
 
 /**
- * Gets sysinfo class mathing current OS
- *
- * @return sysinfo class
+ * @return array
  */
 function PMA_getSysInfo()
 {
@@ -51,120 +38,40 @@ function PMA_getSysInfo()
     $sysinfo = array();
 
     if (in_array($php_os, $supported)) {
-        $ret = eval("return new PMA_SysInfo" . $php_os . "();");
-        if ($ret->supported()) {
-            return $ret;
-        }
+        return eval("return new PMA_sysinfo".$php_os."();");
     }
 
-    return new PMA_SysInfo;
+    return new PMA_Sysinfo_Default;
 }
 
-/**
- * Basic sysinfo class not providing any real data.
- *
- * @package PhpMyAdmin-sysinfo
- */
-class PMA_SysInfo
-{
-    public $os = PHP_OS;
 
-    /**
-     * Gets load information
-     *
-     * @return array with load data
-     */
-    public function loadavg()
-    {
-        return array('loadavg' => 0);
-    }
-
-    /**
-     * Gets information about memory usage
-     *
-     * @return array with memory usage data
-     */
-    public function memory()
-    {
-        return array();
-    }
-
-    /**
-     * Checks whether class is supported in this environment
-     *
-     * @return true on success
-     */
-    public function supported()
-    {
-        return true;
-    }
-}
-
-/**
- * Windows NT based SysInfo class
- *
- * @package PhpMyAdmin-sysinfo
- */
-class PMA_SysInfoWinnt extends PMA_SysInfo
+class PMA_sysinfoWinnt
 {
     private $_wmi;
 
     public $os = 'WINNT';
 
-    /**
-     * Constructor to access to wmi database.
-     */
-    public function __construct()
-    {
-        if (!class_exists('COM')) {
-            $this->_wmi = null;
-        } else {
-            // initialize the wmi object
-            $objLocator = new COM('WbemScripting.SWbemLocator');
-            $this->_wmi = $objLocator->ConnectServer();
-        }
+    public function __construct() {
+        // initialize the wmi object
+        $objLocator = new COM('WbemScripting.SWbemLocator');
+        $this->_wmi = $objLocator->ConnectServer();
     }
 
-    /**
-     * Gets load information
-     *
-     * @return array with load data
-     */
-    function loadavg()
-    {
+    function loadavg() {
         $loadavg = "";
         $sum = 0;
         $buffer = $this->_getWMI('Win32_Processor', array('LoadPercentage'));
 
         foreach ($buffer as $load) {
             $value = $load['LoadPercentage'];
-            $loadavg .= $value . ' ';
+            $loadavg .= $value.' ';
             $sum += $value;
         }
 
         return array('loadavg' => $sum / count($buffer));
     }
 
-    /**
-     * Checks whether class is supported in this environment
-     *
-     * @return true on success
-     */
-    public function supported()
-    {
-        return !is_null($this->_wmi);
-    }
-
-    /**
-     * Reads data from WMI
-     *
-     * @param string $strClass Class to read
-     * @param array  $strValue Values to read
-     *
-     * @return arrray with results
-     */
-    private function _getWMI($strClass, $strValue = array())
-    {
+    private function _getWMI($strClass, $strValue = array()) {
         $arrData = array();
         $value = "";
 
@@ -178,11 +85,11 @@ class PMA_SysInfoWinnt extends PMA_SysInfo
             $arrInstance = array();
             foreach ($arrProp as $propItem) {
                 if ( empty($strValue)) {
-                    eval("\$value = \$objItem->" . $propItem->Name . ";");
+                    eval("\$value = \$objItem->".$propItem->Name.";");
                     $arrInstance[$propItem->Name] = trim($value);
                 } else {
                     if (in_array($propItem->Name, $strValue)) {
-                        eval("\$value = \$objItem->" . $propItem->Name . ";");
+                        eval("\$value = \$objItem->".$propItem->Name.";");
                         $arrInstance[$propItem->Name] = trim($value);
                     }
                 }
@@ -192,17 +99,9 @@ class PMA_SysInfoWinnt extends PMA_SysInfo
         return $arrData;
     }
 
-    /**
-     * Gets information about memory usage
-     *
-     * @return array with memory usage data
-     */
-    function memory()
-    {
-        $buffer = $this->_getWMI(
-            "Win32_OperatingSystem",
-            array('TotalVisibleMemorySize', 'FreePhysicalMemory')
-        );
+
+    function memory() {
+        $buffer = $this->_getWMI("Win32_OperatingSystem", array('TotalVisibleMemorySize', 'FreePhysicalMemory'));
         $mem = Array();
         $mem['MemTotal'] = $buffer[0]['TotalVisibleMemorySize'];
         $mem['MemFree'] = $buffer[0]['FreePhysicalMemory'];
@@ -224,83 +123,34 @@ class PMA_SysInfoWinnt extends PMA_SysInfo
     }
 }
 
-/**
- * Linux based SysInfo class
- *
- * @package PhpMyAdmin-sysinfo
- */
-class PMA_SysInfoLinux extends PMA_SysInfo
+class PMA_sysinfoLinux
 {
     public $os = 'Linux';
 
-    /**
-     * Gets load information
-     *
-     * @return array with load data
-     */
-    function loadavg()
-    {
+    function loadavg() {
         $buf = file_get_contents('/proc/stat');
-        $nums = preg_split("/\s+/", substr($buf, 0, strpos($buf, "\n")));
-        return Array(
-            'busy' => $nums[1] + $nums[2] + $nums[3],
-            'idle' => intval($nums[4])
-        );
+        $nums=preg_split("/\s+/", substr($buf, 0, strpos($buf, "\n")));
+        return Array('busy' => $nums[1]+$nums[2]+$nums[3], 'idle' => intval($nums[4]));
     }
 
-    /**
-     * Checks whether class is supported in this environment
-     *
-     * @return true on success
-     */
-    public function supported()
-    {
-        return is_readable('/proc/meminfo') && is_readable('/proc/stat');
-    }
+    function memory() {
+        preg_match_all('/^(MemTotal|MemFree|Cached|Buffers|SwapCached|SwapTotal|SwapFree):\s+(.*)\s*kB/im', file_get_contents('/proc/meminfo'), $matches);
 
+        $mem = array_combine( $matches[1], $matches[2] );
+        $mem['MemUsed'] = $mem['MemTotal'] - $mem['MemFree'] - $mem['Cached'] - $mem['Buffers'];
+        $mem['SwapUsed'] = $mem['SwapTotal'] - $mem['SwapFree'] - $mem['SwapCached'];
 
-    /**
-     * Gets information about memory usage
-     *
-     * @return array with memory usage data
-     */
-    function memory()
-    {
-        preg_match_all(
-            MEMORY_REGEXP,
-            file_get_contents('/proc/meminfo'),
-            $matches
-        );
-
-        $mem = array_combine($matches[1], $matches[2]);
-        $mem['MemUsed']
-            = $mem['MemTotal'] - $mem['MemFree'] - $mem['Cached'] - $mem['Buffers'];
-        $mem['SwapUsed']
-            = $mem['SwapTotal'] - $mem['SwapFree'] - $mem['SwapCached'];
-
-        foreach ($mem as $idx => $value) {
+        foreach ($mem as $idx=>$value)
             $mem[$idx] = intval($value);
-        }
+
         return $mem;
     }
 }
 
-/**
- * SunOS based SysInfo class
- *
- * @package PhpMyAdmin-sysinfo
- */
-class PMA_SysInfoSunos extends PMA_SysInfo
+class PMA_sysinfoSunos
 {
     public $os = 'SunOS';
 
-    /**
-     * Read value from kstat
-     *
-     * @param string $key Key to read
-     *
-     * @return string with value
-     */
     private function _kstat($key)
     {
         if ($m = shell_exec('kstat -p d '.$key)) {
@@ -311,53 +161,36 @@ class PMA_SysInfoSunos extends PMA_SysInfo
         }
     }
 
-    /**
-     * Gets load information
-     *
-     * @return array with load data
-     */
-    public function loadavg()
-    {
+    public function loadavg() {
         $load1 = $this->_kstat('unix:0:system_misc:avenrun_1min');
 
         return array('loadavg' => $load1);
     }
 
-    /**
-     * Checks whether class is supported in this environment
-     *
-     * @return true on success
-     */
-    public function supported()
-    {
-        return is_readable('/proc/meminfo');
-    }
-
-
-    /**
-     * Gets information about memory usage
-     *
-     * @return array with memory usage data
-     */
-    public function memory()
-    {
-        preg_match_all(
-            MEMORY_REGEXP,
-            file_get_contents('/proc/meminfo'),
-            $matches
-        );
+    public function memory() {
+        preg_match_all('/^(MemTotal|MemFree|Cached|Buffers|SwapCached|SwapTotal|SwapFree):\s+(.*)\s*kB/im', file_get_contents('/proc/meminfo'), $matches);
 
         $pagesize = $this->_kstat('unix:0:seg_cache:slab_size');
-        $mem['MemTotal']
-            = $this->_kstat('unix:0:system_pages:pagestotal') * $pagesize;
-        $mem['MemUsed']
-            = $this->_kstat('unix:0:system_pages:pageslocked') * $pagesize;
-        $mem['MemFree']
-            = $this->_kstat('unix:0:system_pages:pagesfree') * $pagesize;
+        $mem['MemTotal'] = $this->_kstat('unix:0:system_pages:pagestotal') * $pagesize;
+        $mem['MemUsed'] = $this->_kstat('unix:0:system_pages:pageslocked') * $pagesize;
+        $mem['MemFree'] = $this->_kstat('unix:0:system_pages:pagesfree') * $pagesize;
         $mem['SwapTotal'] = $this->_kstat('unix:0:vminfo:swap_avail') / 1024;
         $mem['SwapUsed'] = $this->_kstat('unix:0:vminfo:swap_alloc') / 1024;
         $mem['SwapFree'] = $this->_kstat('unix:0:vminfo:swap_free') / 1024;
 
         return $mem;
+    }
+}
+
+class PMA_sysinfoDefault
+{
+    public $os = PHP_OS;
+
+    public function loadavg() {
+        return array('loadavg' => 0);
+    }
+
+    public function memory() {
+        return array();
     }
 }

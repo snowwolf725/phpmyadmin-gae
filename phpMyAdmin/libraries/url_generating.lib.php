@@ -5,9 +5,6 @@
  *
  * @package PhpMyAdmin
  */
-if (! defined('PHPMYADMIN')) {
-    exit;
-}
 
 /**
  * Generates text with hidden inputs.
@@ -21,7 +18,7 @@ if (! defined('PHPMYADMIN')) {
  *
  * @see PMA_generate_common_url()
  *
- * @return string   string with input fields
+ * @return  string   string with input fields
  *
  * @global  string   the current language
  * @global  string   the current conversion charset
@@ -32,9 +29,8 @@ if (! defined('PHPMYADMIN')) {
  *
  * @access  public
  */
-function PMA_generate_common_hidden_inputs($db = '', $table = '',
-    $indent = 0, $skip = array()
-) {
+function PMA_generate_common_hidden_inputs($db = '', $table = '', $indent = 0, $skip = array())
+{
     if (is_array($db)) {
         $params  =& $db;
         $_indent = empty($table) ? $indent : $table;
@@ -139,7 +135,7 @@ function PMA_getHiddenFields($values, $pre = '')
  * Generates text with URL parameters.
  *
  * <code>
- * // OLD (deprecated) style
+ * // OLD derepecated style
  * // note the ?
  * echo 'script.php?' . PMA_generate_common_url('mysql', 'rights');
  * // produces with cookies enabled:
@@ -180,7 +176,7 @@ function PMA_getHiddenFields($values, $pre = '')
  *               - if first param is not array: optional character to use
  *               instead of '&amp;' for dividing URL parameters
  *
- * @return string   string with URL parameters
+ * @return  string   string with URL parameters
  * @access  public
  */
 function PMA_generate_common_url()
@@ -224,9 +220,9 @@ function PMA_generate_common_url()
 
     $separator = PMA_get_arg_separator();
 
-    // avoid overwriting when creating navi panel links to servers
     if (isset($GLOBALS['server'])
         && $GLOBALS['server'] != $GLOBALS['cfg']['ServerDefault']
+        // avoid overwriting when creating navi panel links to servers
         && ! isset($params['server'])
     ) {
         $params['server'] = $GLOBALS['server'];
@@ -267,7 +263,7 @@ function PMA_generate_common_url()
  * @param string $encode whether to encode separator or not,
  * currently 'none' or 'html'
  *
- * @return string  character used for separating url parts usally ; or &
+ * @return  string  character used for separating url parts usally ; or &
  * @access  public
  */
 function PMA_get_arg_separator($encode = 'none')
@@ -275,7 +271,7 @@ function PMA_get_arg_separator($encode = 'none')
     static $separator = null;
 
     if (null === $separator) {
-        // use separators defined by php, but prefer ';'
+        // use seperators defined by php, but prefer ';'
         // as recommended by W3C
         // (see http://www.w3.org/TR/1999/REC-html401-19991224/appendix/notes.html#h-B.2.2)
         $php_arg_separator_input = ini_get('arg_separator.input');

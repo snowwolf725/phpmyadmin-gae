@@ -3,25 +3,23 @@
 /**
  * Specialized String Functions for phpMyAdmin
  *
+ * Copyright 2002 Robin Johnson <robbat2@users.sourceforge.net>
+ * http://www.orbis-terrarum.net/?l=people.robbat2
+ *
  * Defines a set of function callbacks that have a pure C version available if
  * the "ctype" extension is available, but otherwise have PHP versions to use
  * (that are slower).
  *
  * The SQL Parser code relies heavily on these functions.
  *
- * @package    PhpMyAdmin-String
- * @subpackage MB
+ * @package PhpMyAdmin-String-MB
  */
-if (! defined('PHPMYADMIN')) {
-    exit;
-}
 
 /**
  * Returns length of string depending on current charset.
  *
- * @param string $string string to count
- *
- * @return int string length
+ * @param string   string to count
+ * @return  int      string length
  */
 function PMA_strlen($string)
 {
@@ -31,11 +29,10 @@ function PMA_strlen($string)
 /**
  * Returns substring from string, works depending on current charset.
  *
- * @param string $string string to count
- * @param int    $start  start of substring
- * @param int    $length length of substring
- *
- * @return string the sub string
+ * @param string $string  string to count
+ * @param int    $start   start of substring
+ * @param int    $length  length of substring
+ * @return  string
  */
 function PMA_substr($string, $start, $length = 2147483647)
 {
@@ -45,11 +42,10 @@ function PMA_substr($string, $start, $length = 2147483647)
 /**
  * Returns postion of $needle in $haystack or false if not found
  *
- * @param string $haystack the string being checked
- * @param string $needle   the string to find in haystack
- * @param int    $offset   the search offset
- *
- * @return integer position of $needle in $haystack or false
+ * @param string  $haystack
+ * @param string  $needle
+ * @param int     $offset
+ * @return  integer position of $needle in $haystack or false
  */
 function PMA_strpos($haystack, $needle, $offset = 0)
 {
@@ -59,9 +55,8 @@ function PMA_strpos($haystack, $needle, $offset = 0)
 /**
  * Make a string lowercase
  *
- * @param string $string the string being lowercased
- *
- * @return string the lower case string
+ * @param string  $string
+ * @return  string
  */
 function PMA_strtolower($string)
 {

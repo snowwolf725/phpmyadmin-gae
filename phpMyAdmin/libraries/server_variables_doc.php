@@ -1,5 +1,4 @@
 <?php
-/* vim: set expandtab sw=4 ts=4 sts=4: */
 /**
  * Used to create server variables documentation links
  * $VARIABLE_DOC_LINKS[string $name] = array(
@@ -11,14 +10,8 @@
  * string $chapter: chapter of "HTML, one page per chapter" documentation
  * string $type: type of system variable
  * string $format: if set to 'byte' it will format the variable
- * with PMA_Util::formatByteDown()
- *
- * @package PhpMyAdmin
+ * with PMA_formatByteDown()
  */
-if (! defined('PHPMYADMIN')) {
-    exit;
-}
-
 $VARIABLE_DOC_LINKS = array();
 $VARIABLE_DOC_LINKS['auto_increment_increment'] = array(
     'auto_increment_increment',

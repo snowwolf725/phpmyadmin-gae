@@ -4,9 +4,6 @@
  *
  * @package PhpMyAdmin-Engines
  */
-if (! defined('PHPMYADMIN')) {
-    exit;
-}
 
 /**
  *

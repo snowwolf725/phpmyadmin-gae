@@ -8,6 +8,10 @@
 if (!defined('PHPMYADMIN')) {
     exit;
 }
+
+// show server tabs
+require './libraries/server_links.inc.php';
+
 // build user preferences menu
 
 $form_param = filter_input(INPUT_GET, 'form');
@@ -18,12 +22,12 @@ if (! isset($forms[$form_param])) {
 $tabs_icons = array(
     'Features'    => 'b_tblops.png',
     'Sql_queries' => 'b_sql.png',
-    'Navi_panel'  => 'b_select.png',
-    'Main_panel'  => 'b_props.png',
+    'Left_frame'  => 'b_select.png',
+    'Main_frame'  => 'b_props.png',
     'Import'      => 'b_import.png',
     'Export'      => 'b_export.png');
 echo '<ul id="topmenu2">';
-echo PMA_Util::getHtmlTab(
+echo PMA_generate_html_tab(
     array(
         'link' => 'prefs_manage.php',
         'text' => __('Manage your settings')
@@ -37,13 +41,14 @@ foreach (array_keys($forms) as $formset) {
         'text' => PMA_lang('Form_' . $formset),
         'icon' => $tabs_icons[$formset],
         'active' => ($script_name == 'prefs_forms.php' && $formset == $form_param));
-    echo PMA_Util::getHtmlTab($tab, array('form' => $formset)) . "\n";
+    echo PMA_generate_html_tab($tab, array('form' => $formset)) . "\n";
 }
 echo '</ul><div class="clearfloat"></div>';
 
-// show "configuration saved" message and reload navigation panel if needed
+// show "configuration saved" message and reload navigation frame if needed
 if (!empty($_GET['saved'])) {
-    PMA_Message::rawSuccess(__('Configuration has been saved'))->display();
+    $message = PMA_Message::rawSuccess(__('Configuration has been saved'));
+    $message->display();
 }
 
 /* debug code
@@ -64,8 +69,6 @@ $msg->display();
 $cfgRelation = PMA_getRelationsParam();
 if (! $cfgRelation['userconfigwork']) {
     $msg = __('Your preferences will be saved for current session only. Storing them permanently requires %sphpMyAdmin configuration storage%s.');
-    $msg = PMA_sanitize(
-        sprintf($msg, '[doc@linked-tables]', '[/doc]')
-    );
+    $msg = PMA_sanitize(sprintf($msg, '[a@./Documentation.html#linked-tables@_blank]', '[/a]'));
     PMA_Message::notice($msg)->display();
 }

@@ -5,9 +5,6 @@
  *
  * @package PhpMyAdmin
  */
-if (! defined('PHPMYADMIN')) {
-    exit;
-}
 
 /**
  * defines
@@ -23,8 +20,7 @@ define('PMA_ENGINE_DETAILS_TYPE_NUMERIC',   2); //Has no effect yet...
 define('PMA_ENGINE_DETAILS_TYPE_BOOLEAN',   3); // 'ON' or 'OFF'
 
 /**
- * Base Storage Engine Class
- *
+ * base Storage Engine Class
  * @package PhpMyAdmin
  */
 class PMA_StorageEngine
@@ -42,8 +38,7 @@ class PMA_StorageEngine
     /**
      * @var string engine lang description
      */
-    var $comment
-        = 'If you read this text inside phpMyAdmin, something went wrong...';
+    var $comment = 'If you read this text inside phpMyAdmin, something went wrong...';
 
     /**
      * @var integer engine supported by current server
@@ -56,7 +51,7 @@ class PMA_StorageEngine
      * @static
      * @staticvar array $storage_engines storage engines
      * @access  public
-     * @return array    of storage engines
+     * @return  array    of storage engines
      */
     static public function getStorageEngines()
     {
@@ -77,8 +72,7 @@ class PMA_StorageEngine
                         AND p.plugin_name NOT IN ('FunctionEngine', 'schema')";
                 $storage_engines = PMA_DBI_fetch_result($sql, 'Engine');
             } else {
-                $storage_engines
-                    = PMA_DBI_fetch_result('SHOW STORAGE ENGINES', 'Engine');
+                $storage_engines = PMA_DBI_fetch_result('SHOW STORAGE ENGINES', 'Engine');
             }
         }
 
@@ -91,16 +85,14 @@ class PMA_StorageEngine
      * @param string  $name                    The name of the select form element
      * @param string  $id                      The ID of the form field
      * @param string  $selected                The selected engine
-     * @param boolean $offerUnavailableEngines Should unavailable storage
-     *                                         engines be offered?
+     * @param boolean $offerUnavailableEngines Should unavailable storage engines be offered?
      *
      * @static
-     * @return string  html selectbox
+     * @return  string  html selectbox
      */
-    static public function getHtmlSelect(
-        $name = 'engine', $id = null,
-        $selected = null, $offerUnavailableEngines = false
-    ) {
+    static public function getHtmlSelect($name = 'engine', $id = null,
+      $selected = null, $offerUnavailableEngines = false)
+    {
         $selected   = strtolower($selected);
         $output     = '<select name="' . $name . '"'
             . (empty($id) ? '' : ' id="' . $id . '"') . '>' . "\n";
@@ -120,10 +112,8 @@ class PMA_StorageEngine
             $output .= '    <option value="' . htmlspecialchars($key). '"'
                 . (empty($details['Comment'])
                     ? '' : ' title="' . htmlspecialchars($details['Comment']) . '"')
-                . (strtolower($key) == $selected
-                    || (empty($selected) && $details['Support'] == 'DEFAULT')
-                    ? ' selected="selected"' : '')
-                . '>' . "\n"
+                . (strtolower($key) == $selected || (empty($selected) && $details['Support'] == 'DEFAULT')
+                    ? ' selected="selected"' : '') . '>' . "\n"
                 . '        ' . htmlspecialchars($details['Engine']) . "\n"
                 . '    </option>' . "\n";
         }
@@ -138,13 +128,15 @@ class PMA_StorageEngine
      *
      * @param string $engine The engine ID
      *
-     * @return object  The engine plugin
+     * @return  object  The engine plugin
      */
     static public function getEngine($engine)
     {
         $engine = str_replace('/', '', str_replace('.', '', $engine));
-        $filename = './libraries/engines/' . strtolower($engine) . '.lib.php';
-        if (file_exists($filename) && include_once $filename) {
+        $engine_lowercase_filename = strtolower($engine);
+        if (file_exists('./libraries/engines/' . $engine_lowercase_filename . '.lib.php')
+            && include_once './libraries/engines/' . $engine_lowercase_filename . '.lib.php'
+        ) {
             $class_name = 'PMA_StorageEngine_' . $engine;
             $engine_object = new $class_name($engine);
         } else {
@@ -159,7 +151,7 @@ class PMA_StorageEngine
      * @param string $engine name of engine
      *
      * @static
-     * @return boolean whether $engine is valid or not
+     * @return  boolean whether $engine is valid or not
      */
     static public function isValid($engine)
     {
@@ -173,8 +165,7 @@ class PMA_StorageEngine
     /**
      * returns as HTML table of the engine's server variables
      *
-     * @return string The table that was generated based on the retrieved
-     *                information
+     * @return string The table that was generated based on the retrieved information
      */
     function getHtmlVariables()
     {
@@ -185,13 +176,10 @@ class PMA_StorageEngine
             $ret .= '<tr class="' . ($odd_row ? 'odd' : 'even') . '">' . "\n"
                   . '    <td>' . "\n";
             if (! empty($details['desc'])) {
-                $ret .= '        '
-                    . PMA_Util::showHint($details['desc'])
-                    . "\n";
+                $ret .= '        ' . PMA_showHint($details['desc']) . "\n";
             }
             $ret .= '    </td>' . "\n"
-                  . '    <th>' . htmlspecialchars($details['title']) . '</th>'
-                  . "\n"
+                  . '    <th>' . htmlspecialchars($details['title']) . '</th>' . "\n"
                   . '    <td class="value">';
             switch ($details['type']) {
             case PMA_ENGINE_DETAILS_TYPE_SIZE:
@@ -200,7 +188,7 @@ class PMA_StorageEngine
                 unset($parsed_size);
                 break;
             case PMA_ENGINE_DETAILS_TYPE_NUMERIC:
-                $ret .= PMA_Util::formatNumber($details['value']) . ' ';
+                $ret .= PMA_formatNumber($details['value']) . ' ';
                 break;
             default:
                 $ret .= htmlspecialchars($details['value']) . '   ';
@@ -212,9 +200,7 @@ class PMA_StorageEngine
 
         if (! $ret) {
             $ret = '<p>' . "\n"
-                 . '    '
-                 . __('There is no detailed status information available for this storage engine.')
-                 . "\n"
+                 . '    ' . __('There is no detailed status information available for this storage engine.') . "\n"
                  . '</p>' . "\n";
         } else {
             $ret = '<table class="data">' . "\n" . $ret . '</table>' . "\n";
@@ -224,26 +210,24 @@ class PMA_StorageEngine
     }
 
     /**
-     * Returns the engine specific handling for
+     * returns the engine specific handling for
      * PMA_ENGINE_DETAILS_TYPE_SIZE type variables.
      *
      * This function should be overridden when
      * PMA_ENGINE_DETAILS_TYPE_SIZE type needs to be
      * handled differently for a particular engine.
      *
-     * @param integer $value Value to format
-     *
      * @return string the formatted value and its unit
      */
     function resolveTypeSize($value)
     {
-        return PMA_Util::formatByteDown($value);
+        return PMA_formatByteDown($value);
     }
 
     /**
      * returns array with detailed info about engine specific server variables
      *
-     * @return array   with detailed info about specific engine server variables
+     * @return  array   with detailed info about specific engine server variables
      */
     function getVariablesStatus()
     {
@@ -264,8 +248,7 @@ class PMA_StorageEngine
             if (isset($variables[$row['Variable_name']])) {
                 $mysql_vars[$row['Variable_name']] = $variables[$row['Variable_name']];
             } elseif (! $like
-                && strpos(strtolower($row['Variable_name']), strtolower($this->engine)) !== 0
-            ) {
+             && strpos(strtolower($row['Variable_name']), strtolower($this->engine)) !== 0) {
                 continue;
             }
             $mysql_vars[$row['Variable_name']]['value'] = $row['Value'];
@@ -275,14 +258,15 @@ class PMA_StorageEngine
             }
 
             if (! isset($mysql_vars[$row['Variable_name']]['type'])) {
-                $mysql_vars[$row['Variable_name']]['type']
-                    = PMA_ENGINE_DETAILS_TYPE_PLAINTEXT;
+                $mysql_vars[$row['Variable_name']]['type'] = PMA_ENGINE_DETAILS_TYPE_PLAINTEXT;
             }
         }
         PMA_DBI_free_result($res);
 
         return $mysql_vars;
     }
+
+    function engine_init() {}
 
     /**
      * Constructor
@@ -313,6 +297,8 @@ class PMA_StorageEngine
             default:
                 $this->support = PMA_ENGINE_SUPPORT_NO;
             }
+        } else {
+            $this->engine_init();
         }
     }
 
@@ -343,7 +329,7 @@ class PMA_StorageEngine
     /**
      * public String getSupportInformationMessage()
      *
-     * @return string   The localized message.
+     * @return  string   The localized message.
      */
     function getSupportInformationMessage()
     {
@@ -372,7 +358,7 @@ class PMA_StorageEngine
      * for a particular engine.
      *
      * @abstract
-     * @return Array   The list of variables.
+     * @return   Array   The list of variables.
      */
     function getVariables()
     {
@@ -381,9 +367,9 @@ class PMA_StorageEngine
 
     /**
      * returns string with filename for the MySQL helppage
-     * about this storage engine
+     * about this storage engne
      *
-     * @return string  mysql helppage filename
+     * @return  string  mysql helppage filename
      */
     function getMysqlHelpPage()
     {
@@ -394,7 +380,7 @@ class PMA_StorageEngine
      * public string getVariablesLikePattern()
      *
      * @abstract
-     * @return string  SQL query LIKE pattern
+     * @return  string  SQL query LIKE pattern
      */
     function getVariablesLikePattern()
     {
@@ -407,7 +393,7 @@ class PMA_StorageEngine
      * Returns a list of available information pages with labels
      *
      * @abstract
-     * @return array    The list
+     * @return  array    The list
      */
     function getInfoPages()
     {
@@ -422,7 +408,7 @@ class PMA_StorageEngine
      * @param string $id The page ID
      *
      * @abstract
-     * @return string      The page
+     * @return  string      The page
      *          boolean     or false on error.
      */
     function getPage($id)

@@ -1,4 +1,3 @@
-/* vim: set expandtab sw=4 ts=4 sts=4: */
 /**
  * Functions used in Setup configuration forms
  */
@@ -41,13 +40,6 @@ $(function() {
 // ------------------------------------------------------------------
 // Form validation and field operations
 //
-
-/**
- * Automatic form submission on change.
- */
-$('.autosubmit').live('change', function(e) {
-    e.target.form.submit();
-});
 
 $.extend(true, validators, {
     // field validators
@@ -192,10 +184,10 @@ $(function() {
            return;
        }
        var el = $(this).find('input');
-       if (el.prop('disabled')) {
+       if (el.attr('disabled')) {
            return;
        }
-       el.prop('checked', !el.prop('checked'));
+       el.attr('checked', !el.attr('checked'));
    });
 });
 

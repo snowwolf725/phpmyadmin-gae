@@ -1,17 +1,6 @@
 <?php
-/* vim: set expandtab sw=4 ts=4 sts=4: */
 /**
- * Handles actions related to GIS POINT objects
- *
- * @package PhpMyAdmin-GIS
- */
-
-if (! defined('PHPMYADMIN')) {
-    exit;
-}
-
-/**
- * Handles actions related to GIS POINT objects
+ * Handles the visualization of GIS POINT objects.
  *
  * @package PhpMyAdmin-GIS
  */
@@ -22,8 +11,6 @@ class PMA_GIS_Point extends PMA_GIS_Geometry
 
     /**
      * A private constructor; prevents direct creation of object.
-     *
-     * @access private
      */
     private function __construct()
     {
@@ -32,8 +19,7 @@ class PMA_GIS_Point extends PMA_GIS_Geometry
     /**
      * Returns the singleton.
      *
-     * @return object the singleton
-     * @access public
+     * @return the singleton
      */
     public static function singleton()
     {
@@ -50,8 +36,7 @@ class PMA_GIS_Point extends PMA_GIS_Geometry
      *
      * @param string $spatial spatial data of a row
      *
-     * @return array an array containing the min, max values for x and y cordinates
-     * @access public
+     * @return array containing the min, max values for x and y cordinates
      */
     public function scaleRow($spatial)
     {
@@ -67,14 +52,12 @@ class PMA_GIS_Point extends PMA_GIS_Geometry
      * @param string $label       Label for the GIS POINT object
      * @param string $point_color Color for the GIS POINT object
      * @param array  $scale_data  Array containing data related to scaling
-     * @param object $image       Image object
+     * @param image  $image       Image object
      *
-     * @return object the modified image object
-     * @access public
+     * @return the modified image object
      */
-    public function prepareRowAsPng($spatial, $label, $point_color,
-        $scale_data, $image
-    ) {
+    public function prepareRowAsPng($spatial, $label, $point_color, $scale_data, $image)
+    {
         // allocate colors
         $black = imagecolorallocate($image, 0, 0, 0);
         $red   = hexdec(substr($point_color, 1, 2));
@@ -88,15 +71,10 @@ class PMA_GIS_Point extends PMA_GIS_Geometry
 
         // draw a small circle to mark the point
         if ($points_arr[0][0] != '' && $points_arr[0][1] != '') {
-            imagearc(
-                $image, $points_arr[0][0], $points_arr[0][1], 7, 7, 0, 360, $color
-            );
+            imagearc($image, $points_arr[0][0], $points_arr[0][1], 7, 7, 0, 360, $color);
             // print label if applicable
             if (isset($label) && trim($label) != '') {
-                imagestring(
-                    $image, 1, $points_arr[0][0],
-                    $points_arr[0][1], trim($label), $black
-                );
+                imagestring($image, 1, $points_arr[0][0], $points_arr[0][1], trim($label), $black);
             }
         }
         return $image;
@@ -109,14 +87,12 @@ class PMA_GIS_Point extends PMA_GIS_Geometry
      * @param string $label       Label for the GIS POINT object
      * @param string $point_color Color for the GIS POINT object
      * @param array  $scale_data  Array containing data related to scaling
-     * @param object $pdf         TCPDF instance
+     * @param image  $pdf         TCPDF instance
      *
-     * @return object the modified TCPDF instance
-     * @access public
+     * @return the modified TCPDF instance
      */
-    public function prepareRowAsPdf($spatial, $label, $point_color,
-        $scale_data, $pdf
-    ) {
+    public function prepareRowAsPdf($spatial, $label, $point_color, $scale_data, $pdf)
+    {
         // allocate colors
         $red   = hexdec(substr($point_color, 1, 2));
         $green = hexdec(substr($point_color, 3, 2));
@@ -129,9 +105,7 @@ class PMA_GIS_Point extends PMA_GIS_Geometry
 
         // draw a small circle to mark the point
         if ($points_arr[0][0] != '' && $points_arr[0][1] != '') {
-            $pdf->Circle(
-                $points_arr[0][0], $points_arr[0][1], 2, 0, 360, 'D', $line
-            );
+            $pdf->Circle($points_arr[0][0], $points_arr[0][1], 2, 0, 360, 'D', $line);
             // print label if applicable
             if (isset($label) && trim($label) != '') {
                 $pdf->SetXY($points_arr[0][0], $points_arr[0][1]);
@@ -150,8 +124,7 @@ class PMA_GIS_Point extends PMA_GIS_Geometry
      * @param string $point_color Color for the GIS POINT object
      * @param array  $scale_data  Array containing data related to scaling
      *
-     * @return string the code related to a row in the GIS dataset
-     * @access public
+     * @return the code related to a row in the GIS dataset
      */
     public function prepareRowAsSvg($spatial, $label, $point_color, $scale_data)
     {
@@ -170,8 +143,7 @@ class PMA_GIS_Point extends PMA_GIS_Geometry
 
         $row = '';
         if ($points_arr[0][0] != '' && $points_arr[0][1] != '') {
-            $row .= '<circle cx="' . $points_arr[0][0]
-                . '" cy="' . $points_arr[0][1] . '" r="3"';
+            $row .= '<circle cx="' . $points_arr[0][0] . '" cy="' . $points_arr[0][1] . '" r="3"';
             foreach ($point_options as $option => $val) {
                 $row .= ' ' . $option . '="' . trim($val) . '"';
             }
@@ -191,12 +163,10 @@ class PMA_GIS_Point extends PMA_GIS_Geometry
      * @param string $point_color Color for the GIS POINT object
      * @param array  $scale_data  Array containing data related to scaling
      *
-     * @return string JavaScript related to a row in the GIS dataset
-     * @access public
+     * @return JavaScript related to a row in the GIS dataset
      */
-    public function prepareRowAsOl($spatial, $srid, $label,
-        $point_color, $scale_data
-    ) {
+    public function prepareRowAsOl($spatial, $srid, $label, $point_color, $scale_data)
+    {
         $style_options = array(
             'pointRadius'  => 3,
             'fillColor'    => '#ffffff',
@@ -216,8 +186,10 @@ class PMA_GIS_Point extends PMA_GIS_Geometry
         $points_arr = $this->extractPoints($point, null);
 
         if ($points_arr[0][0] != '' && $points_arr[0][1] != '') {
-            $result .= 'vectorLayer.addFeatures(new OpenLayers.Feature.Vector('
-                . $this->getPointForOpenLayers($points_arr[0], $srid). ', null, '
+            $result .= 'vectorLayer.addFeatures(new OpenLayers.Feature.Vector(('
+                . 'new OpenLayers.Geometry.Point(' . $points_arr[0][0] . ', '
+                . $points_arr[0][1] . ').transform(new OpenLayers.Projection("EPSG:'
+                . $srid . '"), map.getProjectionObject())), null, '
                 . json_encode($style_options) . '));';
         }
         return $result;
@@ -230,18 +202,14 @@ class PMA_GIS_Point extends PMA_GIS_Geometry
      * @param int    $index    Index into the parameter object
      * @param string $empty    Point deos not adhere to this parameter
      *
-     * @return string WKT with the set of parameters passed by the GIS editor
-     * @access public
+     * @return WKT with the set of parameters passed by the GIS editor
      */
     public function generateWkt($gis_data, $index, $empty = '')
     {
          return 'POINT('
-             . ((isset($gis_data[$index]['POINT']['x'])
-                 && trim($gis_data[$index]['POINT']['x']) != '')
-             ? $gis_data[$index]['POINT']['x'] : '')
-             . ' '
-             . ((isset($gis_data[$index]['POINT']['y'])
-                 && trim($gis_data[$index]['POINT']['y']) != '')
+             . ((isset($gis_data[$index]['POINT']['x']) && trim($gis_data[$index]['POINT']['x']) != '')
+             ? $gis_data[$index]['POINT']['x'] : '') . ' '
+             . ((isset($gis_data[$index]['POINT']['y']) && trim($gis_data[$index]['POINT']['y']) != '')
              ? $gis_data[$index]['POINT']['y'] : '') . ')';
     }
 
@@ -250,8 +218,7 @@ class PMA_GIS_Point extends PMA_GIS_Geometry
      *
      * @param array $row_data GIS data
      *
-     * @return string the WKT for the data from ESRI shape files
-     * @access public
+     * @return the WKT for the data from ESRI shape files
      */
     public function getShape($row_data)
     {
@@ -265,8 +232,7 @@ class PMA_GIS_Point extends PMA_GIS_Geometry
      * @param string $value of the GIS column
      * @param index  $index of the geometry
      *
-     * @return array params for the GIS data editor from the value of the GIS column
-     * @access public
+     * @return  parameters for the GIS data editor from the value of the GIS column
      */
     public function generateParams($value, $index = -1)
     {

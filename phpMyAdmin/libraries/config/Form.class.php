@@ -10,7 +10,7 @@
  * Base class for forms, loads default configuration options, checks allowed
  * values etc.
  *
- * @package PhpMyAdmin
+ * @package    phpMyAdmin
  */
 class Form
 {
@@ -42,14 +42,14 @@ class Form
      * Caches field types, indexed by field names
      * @var array
      */
-    private $_fieldsTypes;
+    private $fieldsTypes;
 
     /**
      * Constructor, reads default config values
      *
-     * @param string $form_name
-     * @param array  $form
-     * @param int    $index     arbitrary index, stored in Form::$index
+     * @param string  $form_name
+     * @param array   $form
+     * @param int     $index      arbitrary index, stored in Form::$index
      */
     public function __construct($form_name, array $form, $index = null)
     {
@@ -60,24 +60,22 @@ class Form
     /**
      * Returns type of given option
      *
-     * @param string $option_name path or field name
-     *
-     * @return string|null  one of: boolean, integer, double, string, select, array
+     * @param   string  $option_name path or field name
+     * @return  string|null  one of: boolean, integer, double, string, select, array
      */
     public function getOptionType($option_name)
     {
         $key = ltrim(substr($option_name, strrpos($option_name, '/')), '/');
-        return isset($this->_fieldsTypes[$key])
-            ? $this->_fieldsTypes[$key]
+        return isset($this->fieldsTypes[$key])
+            ? $this->fieldsTypes[$key]
             : null;
     }
 
     /**
      * Returns allowed values for select fields
      *
-     * @param string $option_path
-     *
-     * @return array
+     * @param   string  $option_path
+     * @return  array
      */
     public function getOptionValueList($option_path)
     {
@@ -118,11 +116,9 @@ class Form
      * array_walk callback function, reads path of form fields from
      * array (see file comment in setup.forms.php or user_preferences.forms.inc)
      *
-     * @param mixed $value
-     * @param mixed $key
-     * @param mixed $prefix
-     *
-     * @return void
+     * @param   mixed   $value
+     * @param   mixed   $key
+     * @param   mixed   $prefix
      */
     private function _readFormPathsCallback($value, $key, $prefix)
     {
@@ -148,8 +144,6 @@ class Form
      * Reads form paths to {@link $fields}
      *
      * @param array $form
-     *
-     * @return void
      */
     protected function readFormPaths($form)
     {
@@ -169,16 +163,15 @@ class Form
     }
 
     /**
-     * Reads fields' types to $this->_fieldsTypes
+     * Reads fields' types to $this->fieldsTypes
      *
-     * @return void
      */
     protected function readTypes()
     {
         $cf = ConfigFile::getInstance();
         foreach ($this->fields as $name => $path) {
             if (strpos($name, ':group:') === 0) {
-                $this->_fieldsTypes[$name] = 'group';
+                $this->fieldsTypes[$name] = 'group';
                 continue;
             }
             $v = $cf->getDbEntry($path);
@@ -187,7 +180,7 @@ class Form
             } else {
                 $type = gettype($cf->getDefault($path));
             }
-            $this->_fieldsTypes[$name] = $type;
+            $this->fieldsTypes[$name] = $type;
         }
     }
 
@@ -197,8 +190,6 @@ class Form
      *
      * @param string $form_name
      * @param array  $form
-     *
-     * @return void
      */
     public function loadForm($form_name, $form)
     {

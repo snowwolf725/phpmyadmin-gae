@@ -1,9 +1,8 @@
 <?php
-/* vim: set expandtab sw=4 ts=4 sts=4: */
 /**
  * Overview (main page)
  *
- * @package PhpMyAdmin-Setup
+ * @package PhpMyAdmin-setup
  */
 
 if (!defined('PHPMYADMIN')) {
@@ -19,7 +18,7 @@ require_once './setup/lib/index.lib.php';
 
 // prepare unfiltered language list
 $all_languages = PMA_langList();
-uasort($all_languages, 'PMA_languageCmp');
+uasort($all_languages, 'PMA_language_cmp');
 
 $cf = ConfigFile::getInstance();
 $separator = PMA_get_arg_separator('html');
@@ -47,10 +46,8 @@ $config_writable = false;
 $config_exists = false;
 check_config_rw($config_readable, $config_writable, $config_exists);
 if (!$config_writable || !$config_readable) {
-    messages_set(
-        'error', 'config_rw', __('Cannot load or save configuration'),
-        PMA_lang(__('Please create web server writable folder [em]config[/em] in phpMyAdmin top level directory as described in [doc@setup_script]documentation[/doc]. Otherwise you will be only able to download or display it.'))
-    );
+    messages_set('error', 'config_rw', __('Cannot load or save configuration'),
+        PMA_lang(__('Please create web server writable folder [em]config[/em] in phpMyAdmin top level directory as described in [a@Documentation.html#setup_script]documentation[/a]. Otherwise you will be only able to download or display it.')));
 }
 //
 // Check https connection
@@ -71,10 +68,10 @@ if (!$is_https) {
 
 <form id="select_lang" method="post" action="<?php echo htmlspecialchars($_SERVER['REQUEST_URI']) ?>">
     <?php echo PMA_generate_common_hidden_inputs() ?>
-    <bdo lang="en" dir="ltr"><label for="lang">
+    <bdo xml:lang="en" dir="ltr"><label for="lang">
     <?php echo __('Language') . (__('Language') != 'Language' ? ' - Language' : '') ?>
     </label></bdo><br />
-    <select id="lang" name="lang" class="autosubmit" lang="en" dir="ltr">
+    <select id="lang" name="lang" class="autosubmit" xml:lang="en" dir="ltr">
     <?php
     // create language list
     $lang_list = array();
@@ -92,15 +89,13 @@ if (!$is_https) {
 <?php
 // Check for done action info and set notice message if present
 switch ($action_done) {
-case 'config_saved':
-    /* Use uniqid to display this message every time configuration is saved */
-    messages_set(
-        'notice', uniqid('config_saved'), __('Configuration saved.'),
-        PMA_lang(__('Configuration saved to file config/config.inc.php in phpMyAdmin top level directory, copy it to top level one and delete directory config to use it.'))
-    );
-    break;
-default:
-    break;
+    case 'config_saved':
+        /* Use uniqid to display this message every time configuration is saved */
+        messages_set('notice', uniqid('config_saved'), __('Configuration saved.'),
+            PMA_lang(__('Configuration saved to file config/config.inc.php in phpMyAdmin top level directory, copy it to top level one and delete directory config to use it.')));
+        break;
+    default:
+        break;
 }
 ?>
 
@@ -114,21 +109,18 @@ messages_show_html();
 
 <a href="#" id="show_hidden_messages" style="display:none"><?php echo __('Show hidden messages (#MSG_COUNT)') ?></a>
 
-<fieldset class="simple"><legend><?php echo __('Servers') ?></legend>
+<h3><?php echo __('Servers') ?></h3>
 <?php
 //
 // Display server list
 //
-PMA_displayFormTop(
-    'index.php', 'get',
-    array(
-        'page' => 'servers',
-        'mode' => 'add'
-    )
-);
+display_form_top('index.php', 'get', array(
+    'page' => 'servers',
+    'mode' => 'add'
+));
 ?>
 <div class="form">
-<?php if ($cf->getServerCount() > 0) { ?>
+<?php if ($cf->getServerCount() > 0): ?>
 <table cellspacing="0" class="datatable" style="table-layout: fixed">
 <tr>
     <th>#</th>
@@ -136,7 +128,7 @@ PMA_displayFormTop(
     <th><?php echo __('Authentication type') ?></th>
     <th colspan="2">DSN</th>
 </tr>
-<?php foreach ($cf->getServers() as $id => $server) { ?>
+<?php foreach ($cf->getServers() as $id => $server): ?>
 <tr>
     <td><?php echo $id ?></td>
     <td><?php echo htmlspecialchars($cf->getServerName($id)) ?></td>
@@ -149,9 +141,9 @@ PMA_displayFormTop(
         </small>
     </td>
 </tr>
-<?php } ?>
+<?php endforeach; ?>
 </table>
-<?php } else { ?>
+<?php else: ?>
 <table width="100%">
 <tr>
     <td>
@@ -159,7 +151,7 @@ PMA_displayFormTop(
     </td>
 </tr>
 </table>
-<?php } ?>
+<?php endif; ?>
 <table width="100%">
 <tr>
     <td class="lastrow" style="text-align: left">
@@ -169,21 +161,18 @@ PMA_displayFormTop(
 </table>
 </div>
 <?php
-PMA_displayFormBottom();
+display_form_bottom();
 ?>
-</fieldset>
 
-<fieldset class="simple"><legend><?php echo __('Configuration file') ?></legend>
+<h3><?php echo __('Configuration file') ?></h3>
 <?php
 //
 // Display config file settings and load/save form
 //
 $form_display = new FormDisplay();
 
-PMA_displayFormTop('config.php');
-?>
-<table width="100%" cellspacing="0">
-<?php
+display_form_top('config.php');
+display_fieldset_top('', '', null, array('class' => 'simple'));
 
 // Display language list
 $opts = array(
@@ -195,10 +184,8 @@ foreach ($all_languages as $each_lang_key => $each_lang) {
     $lang_name = PMA_langName($each_lang);
     $opts['values'][$each_lang_key] = $lang_name;
 }
-PMA_displayInput(
-    'DefaultLang', __('Default language'), 'select',
-    $cf->getValue('DefaultLang'), '', true, $opts
-);
+display_input('DefaultLang', __('Default language'), '', 'select',
+    $cf->getValue('DefaultLang'), true, $opts);
 
 // Display server list
 $opts = array(
@@ -221,10 +208,8 @@ if ($cf->getServerCount() > 0) {
     $opts['values']['1'] = __('- none -');
     $opts['values_escaped'] = true;
 }
-PMA_displayInput(
-    'ServerDefault', __('Default server'), 'select',
-    $cf->getValue('ServerDefault'), '', true, $opts
-);
+display_input('ServerDefault', __('Default server'), '', 'select',
+    $cf->getValue('ServerDefault'), true, $opts);
 
 // Display EOL list
 $opts = array(
@@ -233,44 +218,27 @@ $opts = array(
         'win' => 'Windows (\r\n)'),
     'values_escaped' => true);
 $eol = PMA_ifSetOr($_SESSION['eol'], (PMA_IS_WINDOWS ? 'win' : 'unix'));
-PMA_displayInput(
-    'eol', __('End of line'), 'select',
-    $eol, '', true, $opts
-);
+display_input('eol', __('End of line'), '', 'select',
+    $eol, true, $opts);
 ?>
 <tr>
     <td colspan="2" class="lastrow" style="text-align: left">
         <input type="submit" name="submit_display" value="<?php echo __('Display') ?>" />
         <input type="submit" name="submit_download" value="<?php echo __('Download') ?>" />
         &nbsp; &nbsp;
-        <input type="submit" name="submit_save" value="<?php echo __('Save') ?>"<?php
-if (!$config_writable) {
-    echo ' disabled="disabled"';
-} ?> />
-        <input type="submit" name="submit_load" value="<?php echo __('Load') ?>"<?php
-if (!$config_exists) {
-    echo ' disabled="disabled"';
-} ?> />
-        <input type="submit" name="submit_delete" value="<?php echo __('Delete')
-        ?>"<?php
-if (!$config_exists || !$config_writable) {
-    echo ' disabled="disabled"';
-} ?> />
+        <input type="submit" name="submit_save" value="<?php echo __('Save') ?>"<?php if (!$config_writable) echo ' disabled="disabled"' ?> />
+        <input type="submit" name="submit_load" value="<?php echo __('Load') ?>"<?php if (!$config_exists) echo ' disabled="disabled"' ?> />
+        <input type="submit" name="submit_delete" value="<?php echo __('Delete') ?>"<?php if (!$config_exists || !$config_writable) echo ' disabled="disabled"' ?> />
         &nbsp; &nbsp;
-        <input type="submit" name="submit_clear" value="<?php echo __('Clear')
-        ?>" class="red" />
+        <input type="submit" name="submit_clear" value="<?php echo __('Clear') ?>" class="red" />
     </td>
 </tr>
-</table>
 <?php
-PMA_displayFormBottom();
+display_fieldset_bottom_simple();
+display_form_bottom();
 ?>
-</fieldset>
 <div id="footer">
     <a href="http://phpmyadmin.net"><?php echo __('phpMyAdmin homepage') ?></a>
-    <a href="http://sourceforge.net/donate/index.php?group_id=23067"><?php
-    echo __('Donate') ?></a>
-    <a href="?version_check=1<?php
-    echo "{$separator}token="
-    . $_SESSION[' PMA_token '] ?>"><?php echo __('Check for latest version') ?></a>
+    <a href="http://sourceforge.net/donate/index.php?group_id=23067"><?php echo __('Donate') ?></a>
+    <a href="?version_check=1<?php echo "{$separator}token=" . $_SESSION[' PMA_token '] ?>"><?php echo __('Check for latest version') ?></a>
 </div>

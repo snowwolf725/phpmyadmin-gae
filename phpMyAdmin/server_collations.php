@@ -6,28 +6,43 @@
  */
 
 /**
+ * no need for variables importing
+ * @ignore
+ */
+if (! defined('PMA_NO_VARIABLES_IMPORT')) {
+    define('PMA_NO_VARIABLES_IMPORT', true);
+}
+/**
  * requirements
  */
-require_once 'libraries/common.inc.php';
+require_once './libraries/common.inc.php';
 
 /**
  * Does the common work
  */
-require 'libraries/server_common.inc.php';
+require './libraries/server_common.inc.php';
+
+
+/**
+ * Displays the links
+ */
+require './libraries/server_links.inc.php';
 
 
 /**
  * Displays the sub-page heading
  */
 echo '<h2>' . "\n"
-   . '    ' . PMA_Util::getImage('s_asci.png')
+   . '    ' . ($GLOBALS['cfg']['MainPageIconic']
+    ? PMA_getImage('s_asci.png')
+    : '')
    . '' . __('Character Sets and Collations') . "\n"
    . '</h2>' . "\n";
 
 /**
  * Includes the required charset library
  */
-require_once 'libraries/mysql_charsets.lib.php';
+require_once './libraries/mysql_charsets.lib.php';
 
 
 /**
@@ -52,13 +67,12 @@ foreach ($mysql_charsets as $current_charset) {
            . '</tr>' . "\n";
     }
     $i++;
-    echo '<tr><th colspan="2" class="right">' . "\n"
+    echo '<tr><th colspan="2" align="right">' . "\n"
        . '        ' . htmlspecialchars($current_charset) . "\n"
        . (empty($mysql_charsets_descriptions[$current_charset])
             ? ''
             : '        (<i>' . htmlspecialchars(
-                $mysql_charsets_descriptions[$current_charset]
-            ) . '</i>)' . "\n")
+                $mysql_charsets_descriptions[$current_charset]) . '</i>)' . "\n")
        . '    </th>' . "\n"
        . '</tr>' . "\n";
     $odd_row = true;
@@ -80,5 +94,7 @@ foreach ($mysql_charsets as $current_charset) {
 unset($table_row_count);
 echo '</table>' . "\n"
    . '</div>' . "\n";
+
+require './libraries/footer.inc.php';
 
 ?>

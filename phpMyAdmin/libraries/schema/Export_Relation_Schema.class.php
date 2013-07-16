@@ -4,9 +4,6 @@
  *
  * @package PhpMyAdmin
  */
-if (! defined('PHPMYADMIN')) {
-    exit;
-}
 
 /**
  * This class is inherited by all schema classes
@@ -59,7 +56,7 @@ class PMA_Export_Relation_Schema
      *
      * @param string $value 'on' to set the the variable
      *
-     * @return void
+     * @return nothing
      */
     public function setShowColor($value)
     {
@@ -89,7 +86,7 @@ class PMA_Export_Relation_Schema
      *
      * @access public
      */
-    public function setAllTablesSameWidth($value)
+    public function setAllTableSameWidth($value)
     {
         $this->sameWide = (isset($value) && $value == 'on') ? 1 : 0;
     }
@@ -167,7 +164,7 @@ class PMA_Export_Relation_Schema
     /**
      * Set type of export relational schema
      *
-     * @param string $value can be pdf,svg,dia,eps etc
+     * @param string $value can be pdf,svg,dia,visio,eps etc
      *
      * @return void
      *
@@ -191,20 +188,19 @@ class PMA_Export_Relation_Schema
     public function getAllTables($db, $pageNumber)
     {
         global $cfgRelation;
-
-        // Get All tables
+         // Get All tables
         $tab_sql = 'SELECT table_name FROM '
-            . PMA_Util::backquote($GLOBALS['cfgRelation']['db']) . '.'
-            . PMA_Util::backquote($cfgRelation['table_coords'])
-            . ' WHERE db_name = \'' . PMA_Util::sqlAddSlashes($db) . '\''
+            . PMA_backquote($GLOBALS['cfgRelation']['db']) . '.'
+            . PMA_backquote($cfgRelation['table_coords'])
+            . ' WHERE db_name = \'' . PMA_sqlAddSlashes($db) . '\''
             . ' AND pdf_page_number = ' . $pageNumber;
 
-        $tab_rs = PMA_queryAsControlUser($tab_sql, null, PMA_DBI_QUERY_STORE);
+        $tab_rs = PMA_query_as_controluser($tab_sql, null, PMA_DBI_QUERY_STORE);
         if (!$tab_rs || !PMA_DBI_num_rows($tab_rs) > 0) {
             $this->dieSchema('', __('This page does not contain any tables!'));
         }
         while ($curr_table = @PMA_DBI_fetch_assoc($tab_rs)) {
-            $alltables[] = PMA_Util::sqlAddSlashes($curr_table['table_name']);
+            $alltables[] = PMA_sqlAddSlashes($curr_table['table_name']);
         }
         return $alltables;
     }
@@ -225,8 +221,10 @@ class PMA_Export_Relation_Schema
      */
     function dieSchema($pageNumber, $type = '', $error_message = '')
     {
+        global $cfg;
         global $db;
 
+        include_once './libraries/header.inc.php';
         echo "<p><strong>" . __("SCHEMA ERROR: ") .  $type . "</strong></p>" . "\n";
         if (!empty($error_message)) {
             $error_message = htmlspecialchars($error_message);
@@ -238,7 +236,8 @@ class PMA_Export_Relation_Schema
             . '&do=selectpage&chpage=' . $pageNumber . '&action_choose=0'
             . '">' . __('Back') . '</a>';
         echo "\n";
-        exit;
+        include_once './libraries/footer.inc.php';
+        exit();
     }
 }
 ?>

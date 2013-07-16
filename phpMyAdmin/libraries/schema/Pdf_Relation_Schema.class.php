@@ -1,13 +1,9 @@
 <?php
 /* vim: set expandtab sw=4 ts=4 sts=4: */
 /**
- * PDF schema handling
  *
  * @package PhpMyAdmin
  */
-if (! defined('PHPMYADMIN')) {
-    exit;
-}
 
 require_once 'Export_Relation_Schema.class.php';
 require_once './libraries/PDF.class.php';
@@ -16,9 +12,8 @@ require_once './libraries/PDF.class.php';
  * Extends the "TCPDF" class and helps
  * in developing the structure of PDF Schema Export
  *
- * @access  public
- * @package PhpMyAdmin
- * @see     TCPDF
+ * @access public
+ * @see TCPDF
  */
 class PMA_Schema_PDF extends PMA_PDF
 {
@@ -41,7 +36,7 @@ class PMA_Schema_PDF extends PMA_PDF
      *
      * @param float $c_margin margin
      *
-     * @return void
+     * @return nothing
      */
     public function setCMargin($c_margin)
     {
@@ -59,11 +54,10 @@ class PMA_Schema_PDF extends PMA_PDF
      *
      * @access public
      *
-     * @return void
+     * @return nothing
      */
-    function setScale($scale = 1, $xMin = 0, $yMin = 0,
-        $leftMargin = -1, $topMargin = -1
-    ) {
+    function PMA_PDF_setScale($scale = 1, $xMin = 0, $yMin = 0, $leftMargin = -1, $topMargin = -1)
+    {
         $this->scale = $scale;
         $this->_xMin = $xMin;
         $this->_yMin = $yMin;
@@ -89,13 +83,12 @@ class PMA_Schema_PDF extends PMA_PDF
      *
      * @access public
      *
-     * @return void
+     * @return nothing
      *
      * @see TCPDF::Cell()
      */
-    function cellScale($w, $h = 0, $txt = '', $border = 0, $ln = 0,
-        $align = '', $fill = 0, $link = ''
-    ) {
+    function PMA_PDF_cellScale($w, $h = 0, $txt = '', $border = 0, $ln = 0, $align = '', $fill = 0, $link = '')
+    {
         $h = $h / $this->scale;
         $w = $w / $this->scale;
         $this->Cell($w, $h, $txt, $border, $ln, $align, $fill, $link);
@@ -111,11 +104,11 @@ class PMA_Schema_PDF extends PMA_PDF
      *
      * @access public
      *
-     * @return void
+     * @return nothing
      *
      * @see TCPDF::Line()
      */
-    function lineScale($x1, $y1, $x2, $y2)
+    function PMA_PDF_lineScale($x1, $y1, $x2, $y2)
     {
         $x1 = ($x1 - $this->_xMin) / $this->scale + $this->leftMargin;
         $y1 = ($y1 - $this->_yMin) / $this->scale + $this->topMargin;
@@ -132,11 +125,11 @@ class PMA_Schema_PDF extends PMA_PDF
      *
      * @access public
      *
-     * @return void
+     * @return nothing
      *
      * @see TCPDF::SetXY()
      */
-    function setXyScale($x, $y)
+    function PMA_PDF_setXyScale($x, $y)
     {
         $x = ($x - $this->_xMin) / $this->scale + $this->leftMargin;
         $y = ($y - $this->_yMin) / $this->scale + $this->topMargin;
@@ -150,11 +143,11 @@ class PMA_Schema_PDF extends PMA_PDF
      *
      * @access public
      *
-     * @return void
+     * @return nothing
      *
      * @see TCPDF::SetX()
      */
-    function setXScale($x)
+    function PMA_PDF_setXScale($x)
     {
         $x = ($x - $this->_xMin) / $this->scale + $this->leftMargin;
         $this->SetX($x);
@@ -167,11 +160,11 @@ class PMA_Schema_PDF extends PMA_PDF
      *
      * @access public
      *
-     * @return void
+     * @return nothing
      *
      * @see TCPDF::SetFontSize()
      */
-    function setFontSizeScale($size)
+    function PMA_PDF_setFontSizeScale($size)
     {
         // Set font size in points
         $size = $size / $this->scale;
@@ -185,11 +178,11 @@ class PMA_Schema_PDF extends PMA_PDF
      *
      * @access public
      *
-     * @return void
+     * @return nothing
      *
      * @see TCPDF::SetLineWidth()
      */
-    function setLineWidthScale($width)
+    function PMA_PDF_setLineWidthScale($width)
     {
         $width = $width / $this->scale;
         $this->SetLineWidth($width);
@@ -198,7 +191,7 @@ class PMA_Schema_PDF extends PMA_PDF
     /**
      * This method is used to render the page header.
      *
-     * @return void
+     * @return nothing
      *
      * @see TCPDF::Header()
      */
@@ -210,11 +203,11 @@ class PMA_Schema_PDF extends PMA_PDF
         global $cfgRelation, $db, $pdf_page_number, $with_doc;
         if ($with_doc) {
             $test_query = 'SELECT * FROM '
-                . PMA_Util::backquote($GLOBALS['cfgRelation']['db']) . '.'
-                . PMA_Util::backquote($cfgRelation['pdf_pages'])
-                . ' WHERE db_name = \'' . PMA_Util::sqlAddSlashes($db) . '\''
+                . PMA_backquote($GLOBALS['cfgRelation']['db']) . '.'
+                . PMA_backquote($cfgRelation['pdf_pages'])
+                . ' WHERE db_name = \'' . PMA_sqlAddSlashes($db) . '\''
                 . ' AND page_nr = \'' . $pdf_page_number . '\'';
-            $test_rs = PMA_queryAsControlUser($test_query);
+            $test_rs = PMA_query_as_controluser($test_query);
             $pages = @PMA_DBI_fetch_assoc($test_rs);
             $this->SetFont($this->_ff, 'B', 14);
             $this->Cell(0, 6, ucfirst($pages['page_descr']), 'B', 1, 'C');
@@ -226,7 +219,7 @@ class PMA_Schema_PDF extends PMA_PDF
     /**
      * This function must be named "Footer" to work with the TCPDF library
      *
-     * @return void
+     * @return nothing
      *
      * @see PMA_PDF::Footer()
      */
@@ -243,7 +236,7 @@ class PMA_Schema_PDF extends PMA_PDF
      *
      * @param array $w array of widths
      *
-     * @return void
+     * @return nothing
      */
     function SetWidths($w)
     {
@@ -251,14 +244,6 @@ class PMA_Schema_PDF extends PMA_PDF
         $this->widths = $w;
     }
 
-    /**
-     * Generates table row.
-     *
-     * @param array $data  Data for table
-     * @param array $links Links for table cells
-     *
-     * @return void
-     */
     function Row($data, $links)
     {
         // line height
@@ -357,9 +342,8 @@ class PMA_Schema_PDF extends PMA_PDF
  * This class preserves the table co-ordinates,fields
  * and helps in drawing/generating the Tables in PDF document.
  *
- * @name    Table_Stats
- * @package PhpMyAdmin
- * @see     PMA_Schema_PDF
+ * @name Table_Stats
+ * @see PMA_Schema_PDF
  */
 class Table_Stats
 {
@@ -393,18 +377,17 @@ class Table_Stats
      * @global array     The relations settings
      * @global string    The current db name
      *
-     * @return void
+     * @return nothing
      *
      * @see PMA_Schema_PDF, Table_Stats::Table_Stats_setWidth,
      *     Table_Stats::Table_Stats_setHeight
      */
-    function __construct($tableName, $fontSize, $pageNumber, &$sameWideWidth,
-        $showKeys = false, $showInfo = false
-    ) {
+    function __construct($tableName, $fontSize, $pageNumber, &$sameWideWidth, $showKeys = false, $showInfo = false)
+    {
         global $pdf, $cfgRelation, $db;
 
         $this->_tableName = $tableName;
-        $sql = 'DESCRIBE ' . PMA_Util::backquote($tableName);
+        $sql = 'DESCRIBE ' . PMA_backquote($tableName);
         $result = PMA_DBI_try_query($sql, null, PMA_DBI_QUERY_STORE);
         if (! $result || ! PMA_DBI_num_rows($result)) {
             $pdf->Error(sprintf(__('The %s table doesn\'t exist!'), $tableName));
@@ -438,12 +421,12 @@ class Table_Stats
             $sameWideWidth = $this->width;
         }
         $sql = 'SELECT x, y FROM '
-             . PMA_Util::backquote($GLOBALS['cfgRelation']['db']) . '.'
-             . PMA_Util::backquote($cfgRelation['table_coords'])
-             . ' WHERE db_name = \'' . PMA_Util::sqlAddSlashes($db) . '\''
-             . ' AND   table_name = \'' . PMA_Util::sqlAddSlashes($tableName) . '\''
+             . PMA_backquote($GLOBALS['cfgRelation']['db']) . '.'
+             . PMA_backquote($cfgRelation['table_coords'])
+             . ' WHERE db_name = \'' . PMA_sqlAddSlashes($db) . '\''
+             . ' AND   table_name = \'' . PMA_sqlAddSlashes($tableName) . '\''
              . ' AND   pdf_page_number = ' . $pageNumber;
-        $result = PMA_queryAsControlUser($sql, false, PMA_DBI_QUERY_STORE);
+        $result = PMA_query_as_controluser($sql, false, PMA_DBI_QUERY_STORE);
         if (! $result || ! PMA_DBI_num_rows($result)) {
             $pdf->Error(
                 sprintf(
@@ -463,7 +446,7 @@ class Table_Stats
          * index
          */
         $result = PMA_DBI_query(
-            'SHOW INDEX FROM ' . PMA_Util::backquote($tableName) . ';',
+            'SHOW INDEX FROM ' . PMA_backquote($tableName) . ';',
             null, PMA_DBI_QUERY_STORE
         );
         if (PMA_DBI_num_rows($result) > 0) {
@@ -483,11 +466,7 @@ class Table_Stats
      */
     private function _getTitle()
     {
-        $ret = '';
-        if ($this->_showInfo) {
-            $ret = sprintf('%.0fx%0.f', $this->width, $this->height);
-        }
-        return $ret . ' ' . $this->_tableName;
+        return ($this->_showInfo ? sprintf('%.0f', $this->width) . 'x' . sprintf('%.0f', $this->height) : '') . ' ' . $this->_tableName;
     }
 
     /**
@@ -499,7 +478,7 @@ class Table_Stats
      *
      * @access private
      *
-     * @return void
+     * @return nothing
      *
      * @see PMA_Schema_PDF
      */
@@ -525,7 +504,7 @@ class Table_Stats
     /**
      * Sets the height of the table
      *
-     * @return void
+     * @return nothing
      *
      * @access private
      */
@@ -538,14 +517,14 @@ class Table_Stats
      * Do draw the table
      *
      * @param integer $fontSize The font size
-     * @param boolean $withDoc  Whether to include links to documentation
+     * @param boolean $withDoc
      * @param boolean $setColor Whether to display color
      *
      * @global object The current PDF document
      *
      * @access public
      *
-     * @return void
+     * @return nothing
      *
      * @see PMA_Schema_PDF
      */
@@ -553,7 +532,7 @@ class Table_Stats
     {
         global $pdf, $withDoc;
 
-        $pdf->setXyScale($this->x, $this->y);
+        $pdf->PMA_PDF_setXyScale($this->x, $this->y);
         $pdf->SetFont($this->_ff, 'B', $fontSize);
         if ($setColor) {
             $pdf->SetTextColor(200);
@@ -565,7 +544,7 @@ class Table_Stats
             $pdf->PMA_links['doc'][$this->_tableName]['-'] = '';
         }
 
-        $pdf->cellScale(
+        $pdf->PMA_PDF_cellScale(
             $this->width,
             $this->heightCell,
             $this->_getTitle(),
@@ -575,7 +554,7 @@ class Table_Stats
             $setColor,
             $pdf->PMA_links['doc'][$this->_tableName]['-']
         );
-        $pdf->setXScale($this->x);
+        $pdf->PMA_PDF_setXScale($this->x);
         $pdf->SetFont($this->_ff, '', $fontSize);
         $pdf->SetTextColor(0);
         $pdf->SetFillColor(255);
@@ -595,7 +574,7 @@ class Table_Stats
                 $pdf->PMA_links['doc'][$this->_tableName][$field] = '';
             }
 
-            $pdf->cellScale(
+            $pdf->PMA_PDF_cellScale(
                 $this->width,
                 $this->heightCell,
                 ' ' . $field,
@@ -605,7 +584,7 @@ class Table_Stats
                 $setColor,
                 $pdf->PMA_links['doc'][$this->_tableName][$field]
             );
-            $pdf->setXScale($this->x);
+            $pdf->PMA_PDF_setXScale($this->x);
             $pdf->SetFillColor(255);
         }
     }
@@ -619,10 +598,9 @@ class Table_Stats
  * master table's master field to foreign table's foreign key
  * in PDF document.
  *
- * @name    Relation_Stats
- * @package PhpMyAdmin
- * @see     PMA_Schema_PDF::SetDrawColor, PMA_Schema_PDF::setLineWidthScale,
- *          PMA_Schema_PDF::lineScale
+ * @name Relation_Stats
+ * @see PMA_Schema_PDF::SetDrawColor, PMA_Schema_PDF::PMA_PDF_setLineWidthScale,
+ * PMA_Schema_PDF::PMA_PDF_lineScale
  */
 class Relation_Stats
 {
@@ -643,13 +621,12 @@ class Relation_Stats
      * @param string $foreign_table The foreign table name
      * @param string $foreign_field The relation field in the foreign table
      *
-     * @return void
+     * @return nothing
      *
      * @see Relation_Stats::_getXy
      */
-    function __construct($master_table, $master_field, $foreign_table,
-        $foreign_field
-    ) {
+    function __construct($master_table, $master_field, $foreign_table, $foreign_field)
+    {
         $src_pos  = $this->_getXy($master_table, $master_field);
         $dest_pos = $this->_getXy($foreign_table, $foreign_field);
         /*
@@ -707,11 +684,7 @@ class Relation_Stats
     {
         $pos = array_search($column, $table->fields);
         // x_left, x_right, y
-        return array(
-            $table->x,
-            $table->x + $table->width,
-            $table->y + ($pos + 1.5) * $table->heightCell
-        );
+        return array($table->x, $table->x + + $table->width, $table->y + ($pos + 1.5) * $table->heightCell);
     }
 
     /**
@@ -724,7 +697,7 @@ class Relation_Stats
      *
      * @access public
      *
-     * @return void
+     * @return nothing
      *
      * @see PMA_Schema_PDF
      */
@@ -751,21 +724,21 @@ class Relation_Stats
         } else {
             $pdf->SetDrawColor(0);
         }
-        $pdf->setLineWidthScale(0.2);
-        $pdf->lineScale(
+        $pdf->PMA_PDF_setLineWidthScale(0.2);
+        $pdf->PMA_PDF_lineScale(
             $this->xSrc,
             $this->ySrc,
             $this->xSrc + $this->srcDir * $this->wTick,
             $this->ySrc
         );
-        $pdf->lineScale(
+        $pdf->PMA_PDF_lineScale(
             $this->xDest + $this->destDir * $this->wTick,
             $this->yDest,
             $this->xDest,
             $this->yDest
         );
-        $pdf->setLineWidthScale(0.1);
-        $pdf->lineScale(
+        $pdf->PMA_PDF_setLineWidthScale(0.1);
+        $pdf->PMA_PDF_lineScale(
             $this->xSrc + $this->srcDir * $this->wTick,
             $this->ySrc,
             $this->xDest + $this->destDir * $this->wTick,
@@ -775,26 +748,26 @@ class Relation_Stats
          * Draws arrows ->
          */
         $root2 = 2 * sqrt(2);
-        $pdf->lineScale(
+        $pdf->PMA_PDF_lineScale(
             $this->xSrc + $this->srcDir * $this->wTick * 0.75,
             $this->ySrc,
             $this->xSrc + $this->srcDir * (0.75 - 1 / $root2) * $this->wTick,
             $this->ySrc + $this->wTick / $root2
         );
-        $pdf->lineScale(
+        $pdf->PMA_PDF_lineScale(
             $this->xSrc + $this->srcDir * $this->wTick * 0.75,
             $this->ySrc,
             $this->xSrc + $this->srcDir * (0.75 - 1 / $root2) * $this->wTick,
             $this->ySrc - $this->wTick / $root2
         );
 
-        $pdf->lineScale(
+        $pdf->PMA_PDF_lineScale(
             $this->xDest + $this->destDir * $this->wTick / 2,
             $this->yDest,
             $this->xDest + $this->destDir * (0.5 + 1 / $root2) * $this->wTick,
             $this->yDest + $this->wTick / $root2
         );
-        $pdf->lineScale(
+        $pdf->PMA_PDF_lineScale(
             $this->xDest + $this->destDir * $this->wTick / 2,
             $this->yDest,
             $this->xDest + $this->destDir * (0.5 + 1 / $root2) * $this->wTick,
@@ -814,24 +787,22 @@ class Relation_Stats
  * to this class
  *
  * @name Pdf_Relation_Schema
- * @package PhpMyAdmin
  */
 class PMA_Pdf_Relation_Schema extends PMA_Export_Relation_Schema
 {
     /**
      * Defines properties
      */
-    private $_tables = array();
     private $_ff = PMA_PDF_FONT;
     private $_xMax = 0;
     private $_yMax = 0;
-    private $_scale;
+    private $scale;
     private $_xMin = 100000;
     private $_yMin = 100000;
-    private $_topMargin = 10;
-    private $_bottomMargin = 10;
-    private $_leftMargin = 10;
-    private $_rightMargin = 10;
+    private $topMargin = 10;
+    private $bottomMargin = 10;
+    private $leftMargin = 10;
+    private $rightMargin = 10;
     private $_tablewidth;
 
     /**
@@ -852,7 +823,7 @@ class PMA_Pdf_Relation_Schema extends PMA_Export_Relation_Schema
         $this->setShowColor(isset($_POST['show_color']));
         $this->setShowKeys(isset($_POST['show_keys']));
         $this->setTableDimension(isset($_POST['show_table_dimension']));
-        $this->setAllTablesSameWidth(isset($_POST['all_tables_same_width']));
+        $this->setAllTableSameWidth(isset($_POST['all_table_same_wide']));
         $this->setWithDataDictionary($_POST['with_doc']);
         $this->setOrientation($_POST['orientation']);
         $this->setPaper($_POST['paper']);
@@ -886,16 +857,15 @@ class PMA_Pdf_Relation_Schema extends PMA_Export_Relation_Schema
             $pdf->SetLink($pdf->PMA_links['RT']['-'], -1);
             $pdf->Bookmark(__('Relational schema'));
             $pdf->SetAlias('{00}', $pdf->PageNo());
-            $this->_topMargin = 28;
-            $this->_bottomMargin = 28;
+            $this->topMargin = 28;
+            $this->bottomMargin = 28;
         }
 
         /* snip */
         foreach ($alltables as $table) {
-            if (! isset($this->_tables[$table])) {
-                $this->_tables[$table] = new Table_Stats(
-                    $table,
-                    null,
+            if (! isset($this->tables[$table])) {
+                $this->tables[$table] = new Table_Stats(
+                    $table, $this->_ff,
                     $this->pageNumber,
                     $this->_tablewidth,
                     $this->showKeys,
@@ -903,36 +873,34 @@ class PMA_Pdf_Relation_Schema extends PMA_Export_Relation_Schema
                 );
             }
             if ($this->sameWide) {
-                $this->_tables[$table]->width = $this->_tablewidth;
+                $this->tables[$table]->width = $this->_tablewidth;
             }
-            $this->_setMinMax($this->_tables[$table]);
+            $this->_setMinMax($this->tables[$table]);
         }
 
         // Defines the scale factor
-        $this->_scale = ceil(
+        $this->scale = ceil(
             max(
-                ($this->_xMax - $this->_xMin)
-                / ($pdf->getPageWidth() - $this->_rightMargin - $this->_leftMargin),
-                ($this->_yMax - $this->_yMin)
-                / ($pdf->getPageHeight() - $this->_topMargin - $this->_bottomMargin)
+                ($this->_xMax - $this->_xMin) / ($pdf->getPageWidth() - $this->rightMargin - $this->leftMargin),
+                ($this->_yMax - $this->_yMin) / ($pdf->getPageHeight() - $this->topMargin - $this->bottomMargin)
             ) * 100
         ) / 100;
 
-        $pdf->setScale(
-            $this->_scale,
+        $pdf->PMA_PDF_setScale(
+            $this->scale,
             $this->_xMin,
             $this->_yMin,
-            $this->_leftMargin,
-            $this->_topMargin
+            $this->leftMargin,
+            $this->topMargin
         );
         // Builds and save the PDF document
-        $pdf->setLineWidthScale(0.1);
+        $pdf->PMA_PDF_setLineWidthScale(0.1);
 
         if ($this->showGrid) {
             $pdf->SetFontSize(10);
             $this->_strokeGrid();
         }
-        $pdf->setFontSizeScale(14);
+        $pdf->PMA_PDF_setFontSizeScale(14);
         // previous logic was checking master tables and foreign tables
         // but I think that looping on every table of the pdf page as a master
         // and finding its foreigns is OK (then we can support innodb)
@@ -972,7 +940,7 @@ class PMA_Pdf_Relation_Schema extends PMA_Export_Relation_Schema
      *
      * @param string $table The table name of which sets XY co-ordinates
      *
-     * @return void
+     * @return nothing
      *
      * @access private
      */
@@ -995,30 +963,29 @@ class PMA_Pdf_Relation_Schema extends PMA_Export_Relation_Schema
      *
      * @access private
      *
-     * @return void
+     * @return nothing
      *
      * @see _setMinMax
      */
-    private function _addRelation($masterTable, $masterField, $foreignTable,
-        $foreignField, $showInfo
-    ) {
-        if (! isset($this->_tables[$masterTable])) {
-            $this->_tables[$masterTable] = new Table_Stats(
-                $masterTable, null, $this->pageNumber,
+    private function _addRelation($masterTable, $masterField, $foreignTable, $foreignField, $showInfo)
+    {
+        if (! isset($this->tables[$masterTable])) {
+            $this->tables[$masterTable] = new Table_Stats(
+                $masterTable, $this->_ff, $this->pageNumber,
                 $this->_tablewidth, false, $showInfo
             );
-            $this->_setMinMax($this->_tables[$masterTable]);
+            $this->_setMinMax($this->tables[$masterTable]);
         }
-        if (! isset($this->_tables[$foreignTable])) {
-            $this->_tables[$foreignTable] = new Table_Stats(
-                $foreignTable, null, $this->pageNumber,
+        if (! isset($this->tables[$foreignTable])) {
+            $this->tables[$foreignTable] = new Table_Stats(
+                $foreignTable, $this->_ff, $this->pageNumber,
                 $this->_tablewidth, false, $showInfo
             );
-            $this->_setMinMax($this->_tables[$foreignTable]);
+            $this->_setMinMax($this->tables[$foreignTable]);
         }
         $this->relations[] = new Relation_Stats(
-            $this->_tables[$masterTable], $masterField,
-            $this->_tables[$foreignTable], $foreignField
+            $this->tables[$masterTable], $masterField,
+            $this->tables[$foreignTable], $foreignField
         );
     }
 
@@ -1029,7 +996,7 @@ class PMA_Pdf_Relation_Schema extends PMA_Export_Relation_Schema
      *
      * @access private
      *
-     * @return void
+     * @return nothing
      *
      * @see PMA_Schema_PDF
      */
@@ -1063,8 +1030,7 @@ class PMA_Pdf_Relation_Schema extends PMA_Export_Relation_Schema
                 $pdf->SetXY(0, $l * $gridSize + $topSpace);
                 $label = (string) sprintf(
                     '%.0f',
-                    ($l * $gridSize + $topSpace - $this->_topMargin)
-                    * $this->_scale + $this->_yMin
+                    ($l * $gridSize + $topSpace - $this->topMargin) * $this->scale + $this->_yMin
                 );
                 $pdf->Cell($labelWidth, $labelHeight, ' ' . $label);
             } // end if
@@ -1080,7 +1046,7 @@ class PMA_Pdf_Relation_Schema extends PMA_Export_Relation_Schema
             $pdf->SetXY($j * $gridSize, $topSpace);
             $label = (string) sprintf(
                 '%.0f',
-                ($j * $gridSize - $this->_leftMargin) * $this->_scale + $this->_xMin
+                ($j * $gridSize - $this->leftMargin) * $this->scale + $this->_xMin
             );
             $pdf->Cell($labelWidth, $labelHeight, $label);
         }
@@ -1093,7 +1059,7 @@ class PMA_Pdf_Relation_Schema extends PMA_Export_Relation_Schema
      *
      * @access private
      *
-     * @return void
+     * @return nothing
      *
      * @see Relation_Stats::relationdraw()
      */
@@ -1113,14 +1079,14 @@ class PMA_Pdf_Relation_Schema extends PMA_Export_Relation_Schema
      *
      * @access private
      *
-     * @return void
+     * @return nothing
      *
      * @see Table_Stats::tableDraw()
      */
     private function _drawTables($changeColor = 0)
     {
-        foreach ($this->_tables as $table) {
-            $table->tableDraw(null, $this->withDoc, $changeColor);
+        foreach ($this->tables as $table) {
+            $table->tableDraw($this->_ff, $this->withDoc, $changeColor);
         }
     }
 
@@ -1136,7 +1102,7 @@ class PMA_Pdf_Relation_Schema extends PMA_Export_Relation_Schema
      *                  $cfg['Servers'][$i]['table_coords'] table)
      * @access private
      *
-     * @return void
+     * @return nothing
      *
      * @see PMA_Schema_PDF
      */
@@ -1146,10 +1112,10 @@ class PMA_Pdf_Relation_Schema extends PMA_Export_Relation_Schema
 
         // Get the name of this pdfpage to use as filename
         $_name_sql = 'SELECT page_descr FROM '
-            . PMA_Util::backquote($GLOBALS['cfgRelation']['db']) . '.'
-            . PMA_Util::backquote($cfgRelation['pdf_pages'])
+            . PMA_backquote($GLOBALS['cfgRelation']['db']) . '.'
+            . PMA_backquote($cfgRelation['pdf_pages'])
             . ' WHERE page_nr = ' . $pageNumber;
-        $_name_rs = PMA_queryAsControlUser($_name_sql);
+        $_name_rs = PMA_query_as_controluser($_name_sql);
         if ($_name_rs) {
             $_name_row = PMA_DBI_fetch_row($_name_rs);
             $filename = $_name_row[0] . '.pdf';
@@ -1160,18 +1126,11 @@ class PMA_Pdf_Relation_Schema extends PMA_Export_Relation_Schema
         $pdf->Download($filename);
     }
 
-    /**
-     * Generates data dictionary pages.
-     *
-     * @param bool $alltables Tables to document.
-     *
-     * @return void
-     */
     public function dataDictionaryDoc($alltables)
     {
         global $db, $pdf, $orientation, $paper;
         // TOC
-        $pdf->addpage($_POST['orientation']);
+        $pdf->addpage($GLOBALS['orientation']);
         $pdf->Cell(0, 9, __('Table of contents'), 1, 0, 'C');
         $pdf->Ln(15);
         $i = 1;
@@ -1216,7 +1175,7 @@ class PMA_Pdf_Relation_Schema extends PMA_Export_Relation_Schema
         foreach ($alltables as $table) {
             $z++;
             $pdf->SetAutoPageBreak(true, 15);
-            $pdf->addpage($_POST['orientation']);
+            $pdf->addpage($GLOBALS['orientation']);
             $pdf->Bookmark($table);
             $pdf->SetAlias('{' . sprintf("%02d", $z) . '}', $pdf->PageNo());
             $pdf->PMA_links['RT'][$table]['-'] = $pdf->AddLink();
@@ -1243,27 +1202,19 @@ class PMA_Pdf_Relation_Schema extends PMA_Export_Relation_Schema
                 ? $showtable['Comment']
                 : '';
             $create_time  = isset($showtable['Create_time'])
-                ? PMA_Util::localisedDate(
-                    strtotime($showtable['Create_time'])
-                )
+                ? PMA_localisedDate(strtotime($showtable['Create_time']))
                 : '';
             $update_time  = isset($showtable['Update_time'])
-                ? PMA_Util::localisedDate(
-                    strtotime($showtable['Update_time'])
-                )
+                ? PMA_localisedDate(strtotime($showtable['Update_time']))
                 : '';
             $check_time   = isset($showtable['Check_time'])
-                ? PMA_Util::localisedDate(
-                    strtotime($showtable['Check_time'])
-                )
+                ? PMA_localisedDate(strtotime($showtable['Check_time']))
                 : '';
 
             /**
              * Gets table keys and retains them
              */
-            $result = PMA_DBI_query(
-                'SHOW KEYS FROM ' . PMA_Util::backquote($table) . ';'
-            );
+            $result = PMA_DBI_query('SHOW KEYS FROM ' . PMA_backquote($table) . ';');
             $primary = '';
             $indexes = array();
             $lastIndex = '';
@@ -1282,22 +1233,18 @@ class PMA_Pdf_Relation_Schema extends PMA_Export_Relation_Schema
                     $indexes[] = $row['Key_name'];
                     $lastIndex = $row['Key_name'];
                 }
-                $indexes_info[$row['Key_name']]['Sequences'][]
-                    = $row['Seq_in_index'];
+                $indexes_info[$row['Key_name']]['Sequences'][] = $row['Seq_in_index'];
                 $indexes_info[$row['Key_name']]['Non_unique'] = $row['Non_unique'];
                 if (isset($row['Cardinality'])) {
-                    $indexes_info[$row['Key_name']]['Cardinality']
-                        = $row['Cardinality'];
+                    $indexes_info[$row['Key_name']]['Cardinality'] = $row['Cardinality'];
                 }
                 // I don't know what does following column mean....
                 // $indexes_info[$row['Key_name']]['Packed'] = $row['Packed'];
                 $indexes_info[$row['Key_name']]['Comment'] = $row['Comment'];
 
-                $indexes_data[$row['Key_name']][$row['Seq_in_index']]['Column_name']
-                    = $row['Column_name'];
+                $indexes_data[$row['Key_name']][$row['Seq_in_index']]['Column_name'] = $row['Column_name'];
                 if (isset($row['Sub_part'])) {
-                    $indexes_data[$row['Key_name']][$row['Seq_in_index']]['Sub_part']
-                        = $row['Sub_part'];
+                    $indexes_data[$row['Key_name']][$row['Seq_in_index']]['Sub_part'] = $row['Sub_part'];
                 }
             } // end while
             if ($result) {
@@ -1374,9 +1321,7 @@ class PMA_Pdf_Relation_Schema extends PMA_Export_Relation_Schema
                 }
                 $pdf->Cell($comments_width, 8, __('Comments'), 1, 0, 'C');
                 $pdf->Cell(45, 8, 'MIME', 1, 1, 'C');
-                $pdf->SetWidths(
-                    array(25, 20, 20, 10, 20, 25, 45, $comments_width, 45)
-                );
+                $pdf->SetWidths(array(25, 20, 20, 10, 20, 25, 45, $comments_width, 45));
             } else {
                 $pdf->Cell(20, 8, __('Column'), 1, 0, 'C');
                 $pdf->Cell(20, 8, __('Type'), 1, 0, 'C');
@@ -1392,10 +1337,9 @@ class PMA_Pdf_Relation_Schema extends PMA_Export_Relation_Schema
             $pdf->SetFont($this->_ff, '');
 
             foreach ($columns as $row) {
-                $extracted_columnspec
-                    = PMA_Util::extractColumnSpec($row['Type']);
-                $type                = $extracted_columnspec['print_type'];
-                $attribute           = $extracted_columnspec['attribute'];
+                $extracted_fieldspec = PMA_extractFieldSpec($row['Type']);
+                $type                = $extracted_fieldspec['print_type'];
+                $attribute           = $extracted_fieldspec['attribute'];
                 if (! isset($row['Default'])) {
                     if ($row['Null'] != '' && $row['Null'] != 'NO') {
                         $row['Default'] = 'NULL';
@@ -1410,9 +1354,7 @@ class PMA_Pdf_Relation_Schema extends PMA_Export_Relation_Schema
                     $field_name,
                     $type,
                     $attribute,
-                    ($row['Null'] == '' || $row['Null'] == 'NO')
-                    ? __('No')
-                    : __('Yes'),
+                    ($row['Null'] == '' || $row['Null'] == 'NO') ? __('No') : __('Yes'),
                     (isset($row['Default']) ? $row['Default'] : ''),
                     $row['Extra'],
                     (isset($res_rel[$field_name])
@@ -1427,8 +1369,8 @@ class PMA_Pdf_Relation_Schema extends PMA_Export_Relation_Schema
                 );
                 $links[0] = $pdf->PMA_links['RT'][$table][$field_name];
                 if (isset($res_rel[$field_name]['foreign_table'])
-                    && isset($res_rel[$field_name]['foreign_field'])
-                    && isset($pdf->PMA_links['doc'][$res_rel[$field_name]['foreign_table']][$res_rel[$field_name]['foreign_field']])
+                    AND isset($res_rel[$field_name]['foreign_field'])
+                    AND isset($pdf->PMA_links['doc'][$res_rel[$field_name]['foreign_table']][$res_rel[$field_name]['foreign_field']])
                 ) {
                     $links[6] = $pdf->PMA_links['doc'][$res_rel[$field_name]['foreign_table']][$res_rel[$field_name]['foreign_field']];
                 } else {

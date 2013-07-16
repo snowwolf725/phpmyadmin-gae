@@ -8,29 +8,26 @@
 /**
  * Gets the variables sent or posted to this script, then displays headers
  */
-require_once 'libraries/common.inc.php';
+require_once './libraries/common.inc.php';
 
 if (! isset($selected_tbl)) {
-    include 'libraries/db_common.inc.php';
-    include 'libraries/db_info.inc.php';
+    include './libraries/db_common.inc.php';
+    include './libraries/db_info.inc.php';
 }
 
-$response = PMA_Response::getInstance();
-$header   = $response->getHeader();
-$header->enablePrintView();
 
 /**
  * Gets the relations settings
  */
 $cfgRelation  = PMA_getRelationsParam();
 
-require_once 'libraries/transformations.lib.php';
-require_once 'libraries/Index.class.php';
+require_once './libraries/transformations.lib.php';
+
 
 /**
  * Check parameters
  */
-PMA_Util::checkParameters(array('db'));
+PMA_checkParameters(array('db'));
 
 /**
  * Defines the url to return to in case of error in a sql statement
@@ -48,8 +45,10 @@ if ($cfgRelation['commwork']) {
      * Displays DB comment
      */
     if ($comment) {
-        echo '<p>' . __('Database comment: ')
-            . '<i>' . htmlspecialchars($comment) . '</i></p>';
+        ?>
+    <p> <?php echo __('Database comment: '); ?>
+        <i><?php echo htmlspecialchars($comment); ?></i></p>
+        <?php
     } // end if
 }
 
@@ -125,12 +124,9 @@ foreach ($tables as $table) {
         // and SHOW CREATE TABLE says NOT NULL
         // http://bugs.mysql.com/20910.
 
-        $show_create_table_query = 'SHOW CREATE TABLE '
-            . PMA_Util::backquote($db) . '.'
-            . PMA_Util::backquote($table);
         $show_create_table = PMA_DBI_fetch_value(
-            $show_create_table_query, 0, 1
-        );
+            'SHOW CREATE TABLE ' . PMA_backquote($db) . '.' . PMA_backquote($table),
+            0, 1);
         $analyzed_sql = PMA_SQP_analyze(PMA_SQP_parse($show_create_table));
     }
 
@@ -186,19 +182,17 @@ foreach ($tables as $table) {
         if ($row['Null'] == '') {
             $row['Null'] = 'NO';
         }
-        $extracted_columnspec
-            = PMA_Util::extractColumnSpec($row['Type']);
-
+        $extracted_fieldspec = PMA_extractFieldSpec($row['Type']);
         // reformat mysql query output
         // set or enum types: slashes single quotes inside options
-        if ('set' == $extracted_columnspec['type'] || 'enum' == $extracted_columnspec['type']) {
+        if ('set' == $extracted_fieldspec['type'] || 'enum' == $extracted_fieldspec['type']) {
             $type_nowrap  = '';
 
         } else {
-            $type_nowrap  = ' class="nowrap"';
+            $type_nowrap  = ' nowrap="nowrap"';
         }
-        $type = htmlspecialchars($extracted_columnspec['print_type']);
-        $attribute     = $extracted_columnspec['attribute'];
+        $type = htmlspecialchars($extracted_fieldspec['print_type']);
+        $attribute     = $extracted_fieldspec['attribute'];
         if (! isset($row['Default'])) {
             if ($row['Null'] != 'NO') {
                 $row['Default'] = '<i>NULL</i>';
@@ -209,10 +203,9 @@ foreach ($tables as $table) {
         $field_name = $row['Field'];
 
         if (PMA_MYSQL_INT_VERSION < 50025
-            && ! empty($analyzed_sql[0]['create_table_fields'][$field_name]['type'])
-            && $analyzed_sql[0]['create_table_fields'][$field_name]['type'] == 'TIMESTAMP'
-            && $analyzed_sql[0]['create_table_fields'][$field_name]['timestamp_not_null']
-        ) {
+         && ! empty($analyzed_sql[0]['create_table_fields'][$field_name]['type'])
+         && $analyzed_sql[0]['create_table_fields'][$field_name]['type'] == 'TIMESTAMP'
+         && $analyzed_sql[0]['create_table_fields'][$field_name]['timestamp_not_null']) {
             // here, we have a TIMESTAMP that SHOW FULL COLUMNS reports as having the
             // NULL attribute, but SHOW CREATE TABLE says the contrary. Believe
             // the latter.
@@ -226,7 +219,7 @@ foreach ($tables as $table) {
         }
         ?>
 <tr class="<?php echo $odd_row ? 'odd' : 'even'; $odd_row = ! $odd_row; ?>">
-    <td class="nowrap">
+    <td nowrap="nowrap">
         <?php
         if (isset($pk_array[$row['Field']])) {
             echo '<u>' . htmlspecialchars($field_name) . '</u>';
@@ -235,14 +228,10 @@ foreach ($tables as $table) {
         }
         ?>
     </td>
-    <td<?php echo $type_nowrap; ?> lang="en" dir="ltr"><?php echo $type; ?></td>
+    <td<?php echo $type_nowrap; ?> xml:lang="en" dir="ltr"><?php echo $type; ?></td>
 <?php /*    <td<?php echo $type_nowrap; ?>><?php echo $attribute; ?></td>*/ ?>
     <td><?php echo (($row['Null'] == 'NO') ? __('No') : __('Yes')); ?></td>
-    <td class="nowrap"><?php
-    if (isset($row['Default'])) {
-        echo $row['Default'];
-    }
-    ?></td>
+    <td nowrap="nowrap"><?php if (isset($row['Default'])) { echo $row['Default']; } ?></td>
 <?php /*    <td<?php echo $type_nowrap; ?>><?php echo $row['Extra']; ?></td>*/ ?>
         <?php
         if ($have_rel) {
@@ -273,12 +262,6 @@ foreach ($tables as $table) {
     $count++;
     ?>
 </table>
-<?php
-// display indexes information
-    if (count(PMA_Index::getFromTable($table, $db)) > 0) {
-        echo PMA_Index::getView($table, $db, true);
-    }
-?>
 </div>
     <?php
 } //ends main while
@@ -286,6 +269,7 @@ foreach ($tables as $table) {
 /**
  * Displays the footer
  */
-echo PMA_Util::getButton();
+PMA_printButton();
 
+require './libraries/footer.inc.php';
 ?>

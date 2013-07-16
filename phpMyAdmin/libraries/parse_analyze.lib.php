@@ -1,7 +1,6 @@
 <?php
 /* vim: set expandtab sw=4 ts=4 sts=4: */
 /**
- * Parse and analyse a SQL query
  *
  * @package PhpMyAdmin
  */
@@ -47,8 +46,7 @@ if ($is_select) {
         $table = $analyzed_sql[0]['table_ref'][0]['table_true_name'];
     }
     if (isset($analyzed_sql[0]['table_ref'][0]['db'])
-        && strlen($analyzed_sql[0]['table_ref'][0]['db'])
-    ) {
+      && strlen($analyzed_sql[0]['table_ref'][0]['db'])) {
         $db    = $analyzed_sql[0]['table_ref'][0]['db'];
     } else {
         $db = $prev_db;

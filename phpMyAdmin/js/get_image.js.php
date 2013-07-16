@@ -52,7 +52,7 @@ foreach ($sprites as $key => $value) {
  */
 function PMA_getImage(image, alternate, attributes) {
     var in_array = function (needle, haystack) {
-        for (var i in haystack) {
+        for (i in haystack) {
             if (haystack[i] == needle) {
                 return true;
             }
@@ -68,8 +68,7 @@ function PMA_getImage(image, alternate, attributes) {
             // this is private
             alt: '',
             title: '',
-            src: (typeof PMA_TEST_THEME == 'undefined' ? '' : '../')
-                + 'themes/dot.gif'
+            src: 'themes/dot.gif'
         },
         isSprite: true,
         attr: function (name, value) {
@@ -134,5 +133,4 @@ function PMA_getImage(image, alternate, attributes) {
     }
 
     return retval;
-}
-//
+};

@@ -3,9 +3,6 @@
 /**
  * @package PhpMyAdmin-Engines
  */
-if (! defined('PHPMYADMIN')) {
-    exit;
-}
 
 /**
  *
@@ -14,9 +11,7 @@ if (! defined('PHPMYADMIN')) {
 class PMA_StorageEngine_bdb extends PMA_StorageEngine
 {
     /**
-     * Returns array with variable names related to this storage engine
-     *
-     * @return array   variable names
+     * @return  array   variable names
      */
     function getVariables()
     {
@@ -59,10 +54,7 @@ class PMA_StorageEngine_bdb extends PMA_StorageEngine
     }
 
     /**
-     * Returns the pattern to be used in the query for SQL variables
-     * related to this storage engine
-     *
-     * @return string LIKE pattern
+     * @return string   LIKE pattern
      */
     function getVariablesLikePattern()
     {
@@ -71,9 +63,9 @@ class PMA_StorageEngine_bdb extends PMA_StorageEngine
 
     /**
      * returns string with filename for the MySQL helppage
-     * about this storage engine
+     * about this storage engne
      *
-     * @return string  mysql helppage filename
+     * @return  string  mysql helppage filename
      */
     function getMysqlHelpPage()
     {

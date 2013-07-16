@@ -9,9 +9,6 @@
  *
  * @package PhpMyAdmin
  */
-if (! defined('PHPMYADMIN')) {
-    exit;
-}
 
 /**
  * Path to changelog file, can be gzip compressed. Useful when you want to
@@ -68,9 +65,4 @@ define('VERSION_CHECK_DEFAULT', true);
  * eg. /usr/share/php/gettext/gettext.inc.
  */
 define('GETTEXT_INC', './libraries/php-gettext/gettext.inc');
-/**
- * Path to tcpdf.php file. Useful when you want to use system tcpdf,
- * eg. /usr/share/php/tcpdf/tcpdf.php.
- */
-define('TCPDF_INC', './libraries/tcpdf/tcpdf.php');
 ?>

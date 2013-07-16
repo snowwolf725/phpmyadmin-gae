@@ -5,22 +5,15 @@
  *
  * @package PhpMyAdmin
  */
-if (! defined('PHPMYADMIN')) {
-    exit;
-}
 
 /**
- * Renders the server selection in list or selectbox form, or option tags only
+ * display server selection in list or selectbox form, or option tags only
  *
- * @param boolean $not_only_options whether to include form tags or not
- * @param boolean $ommit_fieldset   whether to ommit fieldset tag or not
- *
- * @return string
+ * @param boolean $not_only_options   whether to include form tags or not
+ * @param boolean $ommit_fieldset     whether to ommit fieldset tag or not
  */
-function PMA_selectServer($not_only_options, $ommit_fieldset)
+function PMA_select_server($not_only_options, $ommit_fieldset)
 {
-    $retval = '';
-
     // Show as list?
     if ($not_only_options) {
         $list = $GLOBALS['cfg']['DisplayServersList'];
@@ -30,19 +23,19 @@ function PMA_selectServer($not_only_options, $ommit_fieldset)
     }
 
     if ($not_only_options) {
-        $retval .= '<form method="post" action="' . $GLOBALS['cfg']['DefaultTabServer'] . '" class="disableAjax">';
-        $retval .= PMA_generate_common_hidden_inputs();
+        echo '<form method="post" action="index.php" target="_parent">';
+        echo PMA_generate_common_hidden_inputs();
 
         if (! $ommit_fieldset) {
-            $retval .= '<fieldset>';
+            echo '<fieldset>';
         }
-        $retval .= '<label for="select_server">' . __('Current Server') . ':</label> ';
+        echo '<label for="select_server">' . __('Current Server') . ':</label> ';
 
-        $retval .= '<select name="server" id="select_server" class="autosubmit">';
-        $retval .= '<option value="">(' . __('Servers') . ') ...</option>' . "\n";
+        echo '<select name="server" id="select_server" class="autosubmit">';
+        echo '<option value="">(' . __('Servers') . ') ...</option>' . "\n";
     } elseif ($list) {
-        $retval .= __('Current Server') . ':<br />';
-        $retval .= '<ul id="list_server">';
+        echo __('Current Server') . ':<br />';
+        echo '<ul id="list_server">';
     }
 
     foreach ($GLOBALS['cfg']['Servers'] as $key => $server) {
@@ -66,7 +59,7 @@ function PMA_selectServer($not_only_options, $ommit_fieldset)
         if (! empty($server['only_db'])) {
             if (! is_array($server['only_db'])) {
                 $label .= ' - ' . $server['only_db'];
-                // try to avoid displaying a too wide selector
+            // try to avoid displaying a too wide selector
             } elseif (count($server['only_db']) < 4) {
                 $label .= ' - ' . implode(', ', $server['only_db']);
             }
@@ -76,33 +69,35 @@ function PMA_selectServer($not_only_options, $ommit_fieldset)
         }
 
         if ($list) {
-            $retval .= '<li>';
+            echo '<li>';
             if ($selected) {
-                $retval .= '<strong>' . htmlspecialchars($label) . '</strong>';
+                echo '<strong>' . htmlspecialchars($label) . '</strong>';
             } else {
 
-                $retval .= '<a class="disableAjax item" href="' . $GLOBALS['cfg']['DefaultTabServer']
+                echo '<a class="item" href="index.php'
                     . PMA_generate_common_url(array('server' => $key))
-                    . '" >' . htmlspecialchars($label) . '</a>';
+                    . '" target="_top">' . htmlspecialchars($label) . '</a>';
             }
-            $retval .= '</li>';
+            echo '</li>';
         } else {
-            $retval .= '<option value="' . $key . '" '
+            echo '<option value="' . $key . '" '
                 . ($selected ? ' selected="selected"' : '') . '>'
                 . htmlspecialchars($label) . '</option>' . "\n";
         }
     } // end while
 
     if ($not_only_options) {
-        $retval .= '</select>';
+        echo '</select>';
+        // Show submit button if we have just one server (this happens with no default)
+        echo '<noscript>';
+        echo '<input type="submit" value="' . __('Go') . '" />';
+        echo '</noscript>';
         if (! $ommit_fieldset) {
-            $retval .= '</fieldset>';
+            echo '</fieldset>';
         }
-        $retval .= '</form>';
+        echo '</form>';
     } elseif ($list) {
-        $retval .= '</ul>';
+        echo '</ul>';
     }
-
-    return $retval;
 }
 ?>
