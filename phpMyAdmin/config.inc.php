@@ -33,6 +33,7 @@ $cfg['Servers'][$i]['connect_type'] = 'socket';
 $cfg['Servers'][$i]['compress'] = false;
 /* Select mysql if your server does not have mysqli */
 $cfg['Servers'][$i]['extension'] = 'mysql';
+$cfg['Servers'][$i]['AllowRoot'] = true;
 $cfg['Servers'][$i]['AllowNoPassword'] = false;
 
 /*
