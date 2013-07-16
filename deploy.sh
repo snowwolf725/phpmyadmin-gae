@@ -26,9 +26,9 @@ collectDatabaseInstanceName()
 
 replaceDeploymentPlaceHolders()
 {
-	echo "Replacing <project-id> <database-instance-id>"
-	$(git checkout app.yaml phpMyAdmin/config.inc.php)
+	checkoutModifiedFiles
 
+	echo "Replacing <project-id> <database-instance-id>"
 
 	sed -i'' s/\<project-id\>/$applicationId/g $SCRIPT_PATH/app.yaml 2>&1
 	sed -i'' s/\<project-id\>/$applicationId/g $SCRIPT_PATH/phpMyAdmin/config.inc.php 2>&1
@@ -38,6 +38,11 @@ replaceDeploymentPlaceHolders()
 	else
 		false
 	fi
+}
+
+checkoutModifiedFiles()
+{
+	git checkout app.yaml phpMyAdmin/config.inc.php
 }
 
 
@@ -56,6 +61,8 @@ deployApplicationToAppEngine()
 		if ! deployToAppEngine; then
 			echo "Failed to Deploy to AppEngine" && exit 1
 		fi
+
+		checkoutModifiedFiles
 	else
 		echo "Failed Deploying"
 	fi

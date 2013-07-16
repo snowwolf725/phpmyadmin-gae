@@ -3,5 +3,9 @@ phpmyadmin-gae
 
 phpMyAdmin for Google AppEngine
 
-You will have to update the app.yaml file to change the project id and the 
-phpMyAdmin/config.inc.php with your database project id and instance name
+Google AppEngine SDK should exist in your PATH
+
+Just run ./deploy.sh and follow the prompts to deploy phpmyadmin to your App 
+Engine project.
+
+The version of the App deployed will be called "phpmyadmin"
