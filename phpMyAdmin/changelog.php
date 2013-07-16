@@ -104,8 +104,8 @@ echo '<?xml version="1.0" encoding="utf-8"?'.'>';
 <!DOCTYPE html>
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en" dir="ltr">
 <head>
-<link rel="icon" href="favicon.ico" type="image/x-icon" />
-<link rel="shortcut icon" href="favicon.ico" type="image/x-icon" />
+<link rel="icon" href="./favicon.ico" type="image/x-icon" />
+<link rel="shortcut icon" href="./favicon.ico" type="image/x-icon" />
 <title>phpMyAdmin - ChangeLog</title>
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
 </head>
