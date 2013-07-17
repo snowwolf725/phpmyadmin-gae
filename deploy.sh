@@ -1,5 +1,7 @@
 #!/bin/bash
 
+set -e
+
 SCRIPT_PATH=$(realpath $(dirname $0))
 
 collectApplicationId()
