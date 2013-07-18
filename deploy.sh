@@ -6,8 +6,7 @@ SCRIPT_PATH=$(realpath $(dirname $0))
 
 collectApplicationId()
 {
-	echo "Please enter your Application Id: "
-	read applicationId
+	read -p "Please enter your Application Id: " applicationId
 	if [ "$applicationId" != '' ]; then
 		true
 	else
@@ -17,8 +16,7 @@ collectApplicationId()
 
 collectDatabaseInstanceName()
 {
-	echo "Please enter your Database Instance name: "
-	read databaseInstanceName
+	read -p "Please enter your Database Instance name: " databaseInstanceName
 	if [ "$databaseInstanceName" != '' ]; then
 		true
 	else
